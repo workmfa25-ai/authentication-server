@@ -1,0 +1,93 @@
+/* table.css */
+
+/* Main table container */
+.custom-table-container {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 32, 96, 0.1);
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+/* Table header styling */
+.MuiTableHead-root {
+  background-color: #f0f2f5; /* light-gray from your theme */
+}
+
+.MuiTableCell-head {
+  font-weight: 600 ;
+  color: #002060 ; /* navy-blue from your theme */
+  font-size: 0.875rem;
+}
+
+/* Table body styling */
+.MuiTableBody-root .MuiTableRow-root {
+  transition: background-color 0.2s ease;
+}
+
+.MuiTableBody-root .MuiTableRow-root:hover {
+  background-color: rgba(0, 32, 96, 0.04) !important; /* navy-blue with 4% opacity */
+}
+
+.MuiTableCell-body {
+  color: #343a40 !important; /* dark-gray from your theme */
+  font-size: 0.875rem;
+  border-bottom: 1px solid #e0e2e6 !important; /* medium-gray from your theme */
+}
+
+/* Alternating row colors */
+.MuiTableBody-root .MuiTableRow-root:nth-of-type(odd) {
+  background-color: #fafafa;
+}
+
+/* Action buttons styling */
+.table-action-button {
+  padding: 6px 12px !important;
+  font-size: 0.75rem !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Status indicators */
+.active-status {
+  color: #28a745; /* green for active/yes */
+}
+
+.inactive-status {
+  color: #dc3545; /* red for inactive/no */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .custom-table-container {
+    border-radius: 0;
+    box-shadow: none;
+    border: 1px solid #e0e2e6;
+  }
+  
+  .MuiTableCell-root {
+    padding: 8px !important;
+  }
+  
+  .table-action-button {
+    padding: 4px 8px !important;
+    font-size: 0.7rem !important;
+  }
+}
+
+/* Special styling for the Users table */
+.users-table .MuiTableRow-root .MuiTableCell-body:first-child {
+  font-weight: 500;
+}
+
+/* Special styling for the Sessions tables */
+.sessions-table .MuiTableCell-body:nth-child(3) {
+  white-space: nowrap;
+}
+
+
+@media (max-width: 600px) {
+  .custom-table-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+}
