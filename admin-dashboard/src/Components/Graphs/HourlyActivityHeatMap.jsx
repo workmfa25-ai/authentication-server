@@ -23,9 +23,13 @@ const HourlyActivityHeatMap = ({ allsessions = [] }) => {
             allsessions.forEach(session => {
                 if (!session?.created_at) return;
 
-                const date = new Date(session.created_at);
-                const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
-                const hour = date.getHours();
+                // Parse as UTC and convert to IST (UTC+5:30)
+                const utcDate = new Date(session.created_at);
+                // Get time in ms, add 5.5 hours (19800000 ms)
+                const istDate = new Date(utcDate.getTime() + (5.5 * 60 * 60 * 1000));
+
+                const dayOfWeek = istDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                const hour = istDate.getHours();
 
                 // Convert to our day format (Monday = 0, Sunday = 6)
                 const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;

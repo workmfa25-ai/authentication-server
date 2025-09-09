@@ -226,8 +226,10 @@ function JwtSessionsTable({ title, jwtsessions, onRevokeSession, isLoading, tota
                   </TableCell>
                   <TableCell>{s.username || 'N/A'}</TableCell>
                   <TableCell>
-                    {s.created_at ? new Date(s.created_at).toLocaleString() : 'N/A'}
-                  </TableCell>
+    			{new Date(s.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
+		  </TableCell>
+
+
                   <TableCell className={s.is_active ? "active-status" : "inactive-status"}>
                     {s.is_active ? "Yes" : "No"}
                   </TableCell>
