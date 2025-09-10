@@ -17,7 +17,7 @@ import UserProfilePage from './Pages/UserProfilePage';
 import AnalyticsPage from './Pages/AnalyticsPage';
 import Sidebar from "./Components/global/Sidebar";
 import AllJwtSessionsPage from './Pages/AllJwtSessionsPage';
-import SessionsPage from './Pages/SessionsPage';
+// import SessionsPage from './Pages/SessionsPage';
 
 const API_URL = "http://localhost:8000";
 
@@ -50,8 +50,8 @@ function App() {
   const {
     isLoggedIn,
     users,
-    recentsessions,
-    allsessions,
+    // recentsessions,
+    // allsessions,
     error,
     isLoading,
     handleLogin,
@@ -63,9 +63,9 @@ function App() {
     jwtTotal,                 // Total count for pagination
     jwtLoading,               // Loading state d pagination
     fetchJwtSessionsPage,
-    sessionTotal,
-    sessionLoading,
-    fetchSessionsPage,
+    // sessionTotal,
+    // sessionLoading,
+    // fetchSessionsPage,
     
 
 
@@ -158,7 +158,7 @@ useEffect(() => {
     setisSidebarOpen(!isSideBarOpen);
   };
 
-  // const calculateCurrentMonthLoginData = (allsessions) => {
+  // const calculateCurrentMonthLoginData = (jwtSessions) => {
   //   const now = new Date();
   //   const year = now.getFullYear();
   //   const month = now.getMonth(); // 0–11
@@ -166,8 +166,8 @@ useEffect(() => {
 
   //   const counts = Array.from({ length: daysInMonth }, () => 0);
 
-  //   if (Array.isArray(allsessions)) {
-  //     for (const s of allsessions) {
+  //   if (Array.isArray(jwtSessions)) {
+  //     for (const s of jwtSessions) {
   //       if (!s?.created_at) continue;
   //       const d = new Date(s.created_at);
   //       if (d.getFullYear() === year && d.getMonth() === month) {
@@ -190,7 +190,7 @@ useEffect(() => {
   // };
 
   const calculateWeeklyLoginData = () => {
-    if (!allsessions || allsessions.length === 0) {
+    if (!jwtSessions|| jwtSessions.length === 0) {
       return [
         { day: 'Mon', logins: 0 },
         { day: 'Tue', logins: 0 },
@@ -206,7 +206,7 @@ useEffect(() => {
     const today = new Date();
     const sevenDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
 
-    allsessions.forEach(session => {
+    jwtSessions.forEach(session => {
       if (session.created_at) {
         const date = new Date(session.created_at);
         if (date >= sevenDaysAgo && date <= today) {
@@ -302,9 +302,9 @@ useEffect(() => {
                         element={
                           <DashboardPage
                             users={users}
-                            recentsessions={recentsessions}
-                            fetchSessions={fetchSessionsPage}
-                            allsessions={allsessions}
+                            // recentsessions={recentsessions}
+                            // fetchSessions={fetchSessionsPage}
+                            //jwtSessions={allsessions}
                             recentJwtSessions={recentJwtSessions}
                             allJwtSessions={jwtSessions}
                             handleRevokeSession={handleRevokeSession}
@@ -323,9 +323,9 @@ useEffect(() => {
                       />
                       <Route
                         path="/users/:userId"
-                        element={<UserProfilePage users={users} sessions={allsessions} toggleBlock={toggleBlock} replace />}
+                        element={<UserProfilePage users={users} sessions={jwtSessions} toggleBlock={toggleBlock} replace />}
                       />
-                      <Route
+                      {/* <Route
                         path="/sessions"
                         element={<SessionsPage
                           allsessions={allsessions}
@@ -334,7 +334,7 @@ useEffect(() => {
                           sessionTotal={sessionTotal}
                           fetchSessionsPage={fetchSessionsPage}
                           sessionLoading={sessionLoading} replace />}
-                      />
+                      /> */}
                       <Route
                         path="/jwt-sessions"
                         element={
@@ -355,7 +355,7 @@ useEffect(() => {
                         element={
                           <AnalyticsPage
                             weeklyLogindata={weeklyLogindata}
-                            allsessions={allsessions}
+                            allsessions={jwtSessions}
                             users={users}
                             
                             replace

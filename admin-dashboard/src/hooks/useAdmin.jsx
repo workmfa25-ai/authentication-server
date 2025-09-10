@@ -18,10 +18,10 @@ const useAdmin = (API_URL) => {
 
   //state for sessions
 
-  const [recentsessions, setRecentSessions] = useState([]);
-  const [allsessions, setallSessions] = useState([]);
-  const [sessionTotal, SetSessionsTotal] = useState(0);
-  const [sessionLoading, setSessionLoading] = useState(false);
+  // const [recentsessions, setRecentSessions] = useState([]);
+  // const [allsessions, setallSessions] = useState([]);
+  // const [sessionTotal, SetSessionsTotal] = useState(0);
+  // const [sessionLoading, setSessionLoading] = useState(false);
   
 
   // JWT sessions
@@ -117,26 +117,26 @@ const handleLogout = () => {
   const fetchData = async (authToken) => {
     setLoading(true);
     try {
-      const [usersData, recentsessionsData, recentjwtsessions] = await Promise.all([
+      const [usersData, recentJwtsessions] = await Promise.all([
         AdminServices.fetchUsers(API_URL, authToken),
-        AdminServices.fetchrecentSessions(API_URL, authToken),
+      //  AdminServices.fetchrecentSessions(API_URL, authToken),
         AdminServices.fetchrecentJwtSessions(API_URL, authToken, 0, 10),
       ]);
 
       setUsers(usersData);
 
       // FIXED: Handle response format consistently
-      if (recentjwtsessions.data && Array.isArray(recentjwtsessions.data)) {
-        setRecentJwtSessions(recentjwtsessions.data);
-      } else if (Array.isArray(recentjwtsessions)) {
-        setRecentJwtSessions(recentjwtsessions);
+      if (recentJwtsessions.data && Array.isArray(recentJwtsessions.data)) {
+        setRecentJwtSessions(recentJwtsessions.data);
+      } else if (Array.isArray(recentJwtsessions)) {
+        setRecentJwtSessions(recentJwtsessions);
       }
 
-      if (recentsessionsData.data && Array.isArray(recentsessionsData.data)) {
-        setRecentSessions(recentsessionsData.data);
-      } else if (Array.isArray(recentsessionsData)) {
-        setRecentSessions(recentsessionsData);
-      }
+      // if (recentsessionsData.data && Array.isArray(recentsessionsData.data)) {
+      //   setRecentSessions(recentsessionsData.data);
+      // } else if (Array.isArray(recentsessionsData)) {
+      //   setRecentSessions(recentsessionsData);
+      // }
 
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -153,31 +153,31 @@ const handleLogout = () => {
 //     },
 //     [API_URL, token]
 //   );
- const fetchSessionsPage = useCallback(async (page, rowsPerPage) => {
-    if (!token) return;
+//  const fetchSessionsPage = useCallback(async (page, rowsPerPage) => {
+//     if (!token) return;
 
-    setSessionLoading(true);
-    try {
-      const skip = page * rowsPerPage;
-      const sessionsData = await AdminServices.fetchSessionsPaginated(API_URL, token, skip, rowsPerPage);
-      if (sessionsData.data && Array.isArray(sessionsData.data)) {
-        setallSessions(sessionsData.data);
-        SetSessionsTotal(sessionsData.total || 0);
+//     setSessionLoading(true);
+//     try {
+//       const skip = page * rowsPerPage;
+//       const sessionsData = await AdminServices.fetchSessionsPaginated(API_URL, token, skip, rowsPerPage);
+//       if (sessionsData.data && Array.isArray(sessionsData.data)) {
+//         setallSessions(sessionsData.data);
+//         SetSessionsTotal(sessionsData.total || 0);
 
-      } else if (Array.isArray(sessionsData)) {
-        setallSessions(sessionsData);
-        SetSessionsTotal(sessionsData.length);
-      }
-    } catch (error) {
-      console.error("Error fetching sessions page:", error);
-      setError("Failed to fetch sessions");
-      SetSessionsTotal(0);
-      setallSessions([]);
+//       } else if (Array.isArray(sessionsData)) {
+//         setallSessions(sessionsData);
+//         SetSessionsTotal(sessionsData.length);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching sessions page:", error);
+//       setError("Failed to fetch sessions");
+//       SetSessionsTotal(0);
+//       setallSessions([]);
 
-    } finally {
-      setSessionLoading(false);
-    }
-  }, [API_URL, token]);
+//     } finally {
+//       setSessionLoading(false);
+//     }
+//   }, [API_URL, token]);
 
   const fetchJwtSessionsPage = useCallback(async (page, rowsPerPage) => {
     if (!token) return;
@@ -260,8 +260,8 @@ const handleLogout = () => {
     
   isLoggedIn,
   users,
-  recentsessions,
-  allsessions,
+  // recentsessions,
+  // allsessions,
   error,
   isLoading,
   handleLogin,
@@ -273,9 +273,7 @@ const handleLogout = () => {
   jwtTotal,
   fetchJwtSessionsPage,
   jwtLoading,
-  fetchSessionsPage,
-  sessionTotal,
-  sessionLoading,
+  // Removed fetchSessionsPage, sessionTotal, sessionLoading as requested
   //monthlyLoginFetcher
   };
 };

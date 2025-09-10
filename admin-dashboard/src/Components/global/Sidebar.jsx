@@ -396,12 +396,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       path: '/jwt-sessions',
       tooltip: 'View All JWT Sessions'
     },
-    {
-      text: 'All Sessions',
-      icon: HistoryIcon,
-      path: '/sessions',
-      tooltip: 'View All Sessions'
-    }
+    // {
+    //   text: 'All Sessions',
+    //   icon: HistoryIcon,
+    //   path: '/sessions',
+    //   tooltip: 'View All Sessions'
+    // }
   ];
 
   const MenuItemComponent = ({ item }) => {

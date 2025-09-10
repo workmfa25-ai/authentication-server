@@ -55,21 +55,21 @@ const AdminServices = {
     return await res.json();
   },
 
-  fetchrecentSessions: async (API_URL, token, skip = 0, limit = 10) => {
-    const res = await fetch(`${API_URL}/admin/sessions`, {
-      headers: { "Authorization": `Bearer ${token}` }
-    });
-    if (!res.ok) throw new Error("Failed to fetch sessions");
-    return await res.json();
-  },
+  // fetchrecentSessions: async (API_URL, token, skip = 0, limit = 10) => {
+  //   const res = await fetch(`${API_URL}/admin/sessions`, {
+  //     headers: { "Authorization": `Bearer ${token}` }
+  //   });
+  //   if (!res.ok) throw new Error("Failed to fetch sessions");
+  //   return await res.json();
+  // },
 
-  fetchSessionsPaginated: async (API_URL, token, skip = 0, limit = 50) => {
-    const res = await fetch(`${API_URL}/admin/sessions?skip=${skip}&limit=${limit}`, {
-      headers: { "Authorization": `Bearer ${token}` }
-    });
-    if (!res.ok) throw new Error("Failed to fetch sessions");
-    return await res.json();
-  },
+  // fetchSessionsPaginated: async (API_URL, token, skip = 0, limit = 50) => {
+  //   const res = await fetch(`${API_URL}/admin/sessions?skip=${skip}&limit=${limit}`, {
+  //     headers: { "Authorization": `Bearer ${token}` }
+  //   });
+  //   if (!res.ok) throw new Error("Failed to fetch sessions");
+  //   return await res.json();
+  // },
   //jas
 
 

@@ -7,7 +7,7 @@ import json
 import random
 import requests 
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 from fastapi import FastAPI, HTTPException, Request, Depends, Path, status, Query
@@ -260,7 +260,7 @@ async def login(user: UserLogin, request: Request):
         jwt_session = JwtSession(
             user_id=db_user.id,
             jti=jti,
-            created_at=datetime.utcnow(),
+            created_at=datetime.utcnow().replace(tzinfo=timezone.utc),
             is_active=True
         )
         session.add(jwt_session)
@@ -288,12 +288,52 @@ async def login(user: UserLogin, request: Request):
 
         # Return JWT token for user portal
         token_payload = {
-            "sub": db_user.id,  # <-- FIX: use int, not str
+            "sub": str(db_user.id),  # <-- FIX: use int, not str
             "jti": jti,
             "exp": datetime.utcnow() + timedelta(minutes=15)  # <-- 15 MIN EXPIRY
         }
         access_token = jwt.encode(token_payload, SECRET_KEY, algorithm=ALGORITHM)
     return {"access_token": access_token, "token_type": "bearer"}
+    
+@app.post("/logout")
+async def user_logout(token: str = Depends(oauth2_scheme)):
+    """
+    Logs out a user by revoking the current JWT session.
+    Works for both normal users and admins.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        jti = payload.get("jti")
+        if user_id is None or jti is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        user_id = int(user_id)  # <-- FIX: cast to int for DB query
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    async with async_session() as session:
+        result = await session.execute(
+            select(JwtSession).where(JwtSession.jti == jti, JwtSession.user_id == user_id)
+        )
+        jwt_session = result.scalar_one_or_none()
+        if not jwt_session or not jwt_session.is_active:
+            raise HTTPException(status_code=404, detail="Active session not found")
+
+        jwt_session.is_active = False
+        await session.commit()
+
+    return {"message": "User logged out successfully"}
+
+
+@app.post("/logout-debug")
+async def logout_debug(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {"decoded_payload": payload}
+    except JWTError as e:
+        raise HTTPException(status_code=401, detail=f"JWTError: {str(e)}")
+
+
 
 @app.post("/grid-challenge", response_model=GridChallengeResponse)
 async def grid_challenge(req: GridChallengeRequest):
@@ -443,33 +483,33 @@ async def list_users():
             is_blocked=u.is_blocked
         ) for u in users]
 
-@app.get("/admin/sessions", response_model=PaginatedResponse[SessionOut])
-async def list_sessions(skip: int = Query(0, ge=0), limit: int = Query(10, ge=1, le=100)):
-    async with async_session() as session:
-            total_result = await session.execute(select(func.count(GridSession.id)))
-            total = total_result.scalar() or 0
+# @app.get("/admin/sessions", response_model=PaginatedResponse[SessionOut])
+# async def list_sessions(skip: int = Query(0, ge=0), limit: int = Query(10, ge=1, le=100)):
+#     async with async_session() as session:
+#             total_result = await session.execute(select(func.count(GridSession.id)))
+#             total = total_result.scalar() or 0
 
-            result = await session.execute(
-                select(GridSession, User)
-                .join(User, GridSession.user_id == User.id)
-                .order_by(GridSession.created_at.desc())
-                .offset(skip)
-                .limit(limit)
-            )
-            sessions = []
-            for grid_session, user in result.all():
-                sessions.append(SessionOut(
-                    id=grid_session.id,
-                    username=user.username,
-                    created_at=str(grid_session.created_at),
-                    is_active=grid_session.is_active
-                ))
-            return {
-                "total": total,
-                "skip": skip,
-                "limit": limit,
-                "data": sessions
-            }
+#             result = await session.execute(
+#                 select(GridSession, User)
+#                 .join(User, GridSession.user_id == User.id)
+#                 .order_by(GridSession.created_at.desc())
+#                 .offset(skip)
+#                 .limit(limit)
+#             )
+#             sessions = []
+#             for grid_session, user in result.all():
+#                 sessions.append(SessionOut(
+#                     id=grid_session.id,
+#                     username=user.username,
+#                     created_at=str(grid_session.created_at),
+#                     is_active=grid_session.is_active
+#                 ))
+#             return {
+#                 "total": total,
+#                 "skip": skip,
+#                 "limit": limit,
+#                 "data": sessions
+#             }
 
         
 
@@ -610,24 +650,24 @@ async def user_profile(user_id: int):
 # User Portal Endpoints
 # ---------------------------
 
-@app.post("/user/sessions", response_model=List[UserSessionOut])
-async def user_sessions(user: UserLogin):
-    async with async_session() as session:
-        result = await session.execute(select(User).where(User.username == user.username))
-        db_user = result.scalar_one_or_none()
-        if not db_user or not verify_password(user.password, db_user.password_hash):
-            raise HTTPException(status_code=401, detail="Invalid credentials")
-        result = await session.execute(
-            select(GridSession).where(GridSession.user_id == db_user.id)
-        )
-        sessions = result.scalars().all()
-        return [
-            UserSessionOut(
-                id=s.id,
-                created_at=str(s.created_at),
-                is_active=s.is_active
-            ) for s in sessions
-        ]
+# @app.post("/user/sessions", response_model=List[UserSessionOut])
+# async def user_sessions(user: UserLogin):
+#     async with async_session() as session:
+#         result = await session.execute(select(User).where(User.username == user.username))
+#         db_user = result.scalar_one_or_none()
+#         if not db_user or not verify_password(user.password, db_user.password_hash):
+#             raise HTTPException(status_code=401, detail="Invalid credentials")
+#         result = await session.execute(
+#             select(GridSession).where(GridSession.user_id == db_user.id)
+#         )
+#         sessions = result.scalars().all()
+#         return [
+#             UserSessionOut(
+#                 id=s.id,
+#                 created_at=str(s.created_at),
+#                 is_active=s.is_active
+#             ) for s in sessions
+#         ]
 
 @app.get("/user/jwt-sessions")
 async def user_jwt_sessions(current_user: User = Depends(get_current_user)):
