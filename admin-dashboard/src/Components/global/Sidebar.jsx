@@ -468,10 +468,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             }
           },
           '&:hover': {
-            bgcolor: `${theme.palette.primary.light}99`,
-            color: theme.palette.primary.main,
+            bgcolor: theme.palette.primary.main, // Keep the original background color
+            color: '#111 !important',
             '& .MuiListItemIcon-root': {
-              color: theme.palette.primary.main,
+              color: '#111 !important',
+            },
+            '& .MuiTypography-root': {
+              color: '#111 !important',
+            },
+            '& .MuiListItemText-root': {
+              color: '#111 !important',
             }
           }
         }}
@@ -494,7 +500,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             },
           }}
         >
-          <Icon sx={{ color: iconColor }} />
+          <Icon sx={{ color: iconColor, '.MuiListItemButton-root:hover &': { color: '#111 !important' } }} />
         </ListItemIcon>
         {showText && (
           <ListItemText
@@ -509,6 +515,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               },
               margin: 0,
               flex: 1,
+              '.Mui-selected &, .MuiListItemButton-root:hover &': {
+                color: '#111 !important',
+                '& .MuiTypography-root': {
+                  color: '#111 !important',
+                },
+              },
             }}
           />
         )}
@@ -554,7 +566,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         alignItems: 'center',
         px: 2,
         py: 1.5,
-        borderBottom: `2px solid #003399`,
         minHeight: 64, // Match TopBar height
         flexShrink: 0,
       }}>
@@ -589,13 +600,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </IconButton>
       </Box>
 
-      {/* Divider before menu items */}
-      <Box sx={{
-        width: '100%',
-        height: '0',
-        borderBottom: '1px solid #003399',
-        opacity: 0.9,
-      }} />
+      {/* No divider needed */}
 
       {/* Menu Items */}
       <Box sx={{
@@ -673,7 +678,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               boxSizing: 'border-box',
               width: 280,
               bgcolor: theme.palette.background.paper,
-              borderRight: `1px solid ${theme.palette.divider}`,
+              borderRight: 'none',
               boxShadow: '8px 0 24px rgba(0, 0, 0, 0.15)',
             },
           }}
@@ -697,7 +702,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         }),
         overflowX: 'hidden',
         bgcolor: theme.palette.primary.main,
-        borderRight: `1px solid ${theme.palette.primary.dark}22`,
+        borderRight: 'none',
         position: 'fixed',
         height: '100vh',
         left: 0,

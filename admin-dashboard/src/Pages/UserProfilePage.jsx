@@ -320,6 +320,16 @@ const UserProfilePage = ({ users, sessions, toggleBlock }) => {
             <Typography variant="body1" color="text.secondary">
               Status: {user.is_blocked ? 'Blocked' : 'Active'} | Role: {user.is_admin ? 'Admin' : 'User'}
             </Typography>
+            {user.department && (
+              <Typography variant="body1" color="text.secondary">
+                Department: {user.department}
+              </Typography>
+            )}
+            {user.rank && (
+              <Typography variant="body1" color="text.secondary">
+                Rank: {user.rank}
+              </Typography>
+            )}
           </Box>
         </Box>
 
