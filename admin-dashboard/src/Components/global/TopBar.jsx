@@ -1,190 +1,26 @@
-// import {
-//   Box,
-//   Typography,
-//   useTheme,
-//   IconButton,
-//   AppBar,
-//   Toolbar,
-//   useMediaQuery,
-// } from "@mui/material";
-// import MenuIcon from '@mui/icons-material/Menu';
-// import { Link as RouterLink } from "react-router-dom";
-// import Logo from "../../Assets/logo.png";
-// import '../../index.css';
 
-// const TopBar = ({ toggleSidebar }) => {
-//   const theme = useTheme();
-//   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-//   return (
-//     <AppBar
-//       position="sticky"
-//       elevation={0}
-//       sx={{
-//         bgcolor: theme.palette.background.paper,
-//         color: theme.palette.primary.main,
-//         borderBottom: `1px solid ${theme.palette.divider}`,
-//         boxShadow: '0 2px 8px rgba(0, 98, 255, 0.08)',
-//         zIndex: theme.zIndex.appBar,
-//         // FIXED: Remove margin and width adjustments - let main content handle spacing
-//         ml: 0,
-//         width: '100%',
-//       }}
-//     >
-//       <Toolbar
-//         sx={{
-//           px: { xs: 1.5, sm: 2, md: 3 }, // Consistent padding across breakpoints
-//           minHeight: { xs: 56, sm: 64 },
-//           height: { xs: 56, sm: 64 },
-//           display: 'flex',
-//           alignItems: 'center',
-//           justifyContent: 'space-between',
-//         }}
-//       >
-//         <Box sx={{
-//           display: 'flex',
-//           alignItems: 'center',
-//           gap: { xs: 1, sm: 1.5 },
-//         }}>
-//           {/* Mobile menu toggle button */}
-//           {isMobile && (
-//             <IconButton
-//               color="primary"
-//               onClick={toggleSidebar}
-//               edge="start"
-//               sx={{
-//                 mr: 0.5,
-//                 ml: -0.5,
-//                 width: 36,
-//                 height: 36,
-//                 borderRadius: 1,
-//                 '&:hover': {
-//                   bgcolor: `${theme.palette.primary.main}10`,
-//                 }
-//               }}
-//             >
-//               <MenuIcon />
-//             </IconButton>
-//           )}
 
-//           <Box
-//             className="logobox"
-//             component={RouterLink}
-//             to="/"
-//             sx={{
-//               display: 'flex',
-//               alignItems: 'center',
-//               justifyContent: 'center',
-//               textDecoration: 'none',
-//               borderRadius: 1.5,
-//               bgcolor: `${theme.palette.primary.main}08`,
-//               p: { xs: 0.5, sm: 0.75 },
-//               width: { xs: 32, sm: 36 },
-//               height: { xs: 32, sm: 36 },
-//               '&:hover': {
-//                 bgcolor: `${theme.palette.primary.main}12`,
-//               },
-//               transition: 'all 0.2s ease',
-//             }}
-//           >
-//             <Box
-//               component="img"
-//               src={Logo}
-//               alt="Logo"
-//               sx={{
-//                 width: '100%',
-//                 height: '100%',
-//                 objectFit: 'contain',
-//               }}
-//             />
-//           </Box>
-
-//           <Box sx={{ 
-//             display: 'flex', 
-//             flexDirection: 'column', 
-//             justifyContent: 'center' 
-//           }}>
-//             <Typography
-//               variant="subtitle1"
-//               sx={{
-//                 fontWeight: 700,
-//                 fontSize: { xs: '0.95rem', sm: '1.1rem' },
-//                 color: theme.palette.primary.main,
-//                 lineHeight: 1.2,
-//                 letterSpacing: '0.5px',
-//               }}
-//             >
-//               Admin Dashboard
-//             </Typography>
-//             <Box
-//               sx={{
-//                 display: 'flex',
-//                 alignItems: 'center',
-//                 gap: 0.5,
-//                 mt: 0.2,
-//               }}
-//             >
-//               <Box
-//                 sx={{
-//                   width: { xs: 6, sm: 8 },
-//                   height: { xs: 6, sm: 8 },
-//                   borderRadius: "50%",
-//                   bgcolor: "#4caf50",
-//                   animation: "pulse 2s infinite",
-//                   "@keyframes pulse": {
-//                     "0%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(76, 175, 80, 0.7)" },
-//                     "70%": { transform: "scale(1)", boxShadow: "0 0 0 6px rgba(76, 175, 80, 0)" },
-//                     "100%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(76, 175, 80, 0)" },
-//                   },
-//                 }}
-//               />
-//               <Typography
-//                 variant="body2"
-//                 sx={{
-//                   color: theme.palette.text.secondary,
-//                   fontSize: { xs: "0.75rem", sm: "0.875rem" },
-//                   fontWeight: 500,
-//                   display: { xs: "none", sm: "block" },
-//                   whiteSpace: "nowrap",
-//                 }}
-//               >
-//                 Online
-//               </Typography>
-//             </Box>
-//           </Box>
-//         </Box>
-
-//         {/* Right-side actions */}
-//         <Box sx={{ 
-//           display: 'flex', 
-//           alignItems: 'center', 
-//           gap: { xs: 0.5, sm: 1 } 
-//         }}>
-//           {/* This section is intentionally empty for now - will be filled with user menu, notifications, etc. */}
-//         </Box>
-//       </Toolbar>
-//     </AppBar>
-//   );
-// };
-
-// export default TopBar;import {
-  import { Box,
+import {
+  Box,
   Typography,
   useTheme,
   IconButton,
   AppBar,
   Toolbar,
   useMediaQuery,
+  Button,
+  Tooltip,
 } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link as RouterLink } from "react-router-dom";
 import Logo from "../../Assets/logo.png";
 import '../../index.css';
 import LogoutIcon from "@mui/icons-material/Logout";
-import { Button } from "@mui/material";
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 
-const TopBar = ({ toggleSidebar, sidebarOpen, onLogout }) => {
-
+const TopBar = ({ toggleSidebar, sidebarOpen, onLogout, darkMode, toggleDarkMode }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -194,10 +30,12 @@ const TopBar = ({ toggleSidebar, sidebarOpen, onLogout }) => {
       elevation={0}
       sx={{
         bgcolor: theme.palette.background.paper,
-        color: theme.palette.primary.main,
+        color: theme.palette.text.primary,
         borderBottom: `1px solid ${theme.palette.divider}`,
-        boxShadow: '0 2px 8px rgba(0, 98, 255, 0.08)',
-        zIndex: theme.zIndex.appBar - 1, // Lower than sidebar
+        boxShadow: darkMode 
+          ? '0 4px 20px rgba(0, 0, 0, 0.3)' 
+          : '0 2px 8px rgba(0, 98, 255, 0.08)',
+        zIndex: theme.zIndex.appBar - 1,
         width: '100%',
         left: 0,
         right: 0,
@@ -274,6 +112,7 @@ const TopBar = ({ toggleSidebar, sidebarOpen, onLogout }) => {
                   height: '100%',
                   width: 'auto',
                   objectFit: 'contain',
+                  filter: darkMode ? 'brightness(1.2)' : 'none',
                 }}
               />
             </Box>
@@ -284,29 +123,31 @@ const TopBar = ({ toggleSidebar, sidebarOpen, onLogout }) => {
               component={RouterLink}
               to="/"
               sx={{
-                color: theme.palette.primary.main,
+                color: theme.palette.text.primary,
                 fontWeight: 700,
                 fontSize: { xs: "1rem", sm: "1.1rem", md: "1.25rem" },
                 letterSpacing: "0.3px",
                 textDecoration: "none",
-                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                background: darkMode 
+                  ? `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`
+                  : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
                 transition: "all 0.3s ease",
                 "&:hover": {
                   transform: 'translateY(-1px)',
-                  textShadow: '0 2px 8px rgba(0, 98, 255, 0.3)',
+                  textShadow: darkMode 
+                    ? '0 2px 8px rgba(79, 195, 247, 0.4)'
+                    : '0 2px 8px rgba(0, 98, 255, 0.3)',
                 },
                 whiteSpace: 'nowrap',
-                // Hide/show based on screen size and sidebar state
                 display: {
-                  xs: isMobile ? 'block' : 'none', // Always show on mobile
-                  sm: 'block', // Always show on larger screens
+                  xs: isMobile ? 'block' : 'none',
+                  sm: 'block',
                 },
               }}
             >
-              {/* Responsive title text */}
               <Box
                 component="span"
                 sx={{
@@ -326,15 +167,40 @@ const TopBar = ({ toggleSidebar, sidebarOpen, onLogout }) => {
             </Typography>
           </Box>
         </Box>
-        {/* Right side - Status indicator */}
+
+        {/* Right side - Controls */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: { xs: 0.75, sm: 1 },
+            gap: { xs: 1, sm: 1.5 },
             flexShrink: 0,
           }}
         >
+          {/* Dark Mode Toggle */}
+          <Tooltip title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+            <IconButton
+              onClick={toggleDarkMode}
+              sx={{
+                color: theme.palette.text.primary,
+                bgcolor: darkMode 
+                  ? 'rgba(79, 195, 247, 0.1)' 
+                  : 'rgba(0, 98, 255, 0.1)',
+                width: 40,
+                height: 40,
+                '&:hover': {
+                  bgcolor: darkMode 
+                    ? 'rgba(79, 195, 247, 0.2)' 
+                    : 'rgba(0, 98, 255, 0.2)',
+                  transform: 'scale(1.05)',
+                },
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
+          </Tooltip>
+
           {/* Online status */}
           <Box
             sx={{
@@ -354,9 +220,18 @@ const TopBar = ({ toggleSidebar, sidebarOpen, onLogout }) => {
                 bgcolor: "#4caf50",
                 animation: "pulse 2s infinite",
                 "@keyframes pulse": {
-                  "0%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(76, 175, 80, 0.7)" },
-                  "70%": { transform: "scale(1)", boxShadow: "0 0 0 6px rgba(76, 175, 80, 0)" },
-                  "100%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(76, 175, 80, 0)" },
+                  "0%": { 
+                    transform: "scale(0.95)", 
+                    boxShadow: "0 0 0 0 rgba(76, 175, 80, 0.7)" 
+                  },
+                  "70%": { 
+                    transform: "scale(1)", 
+                    boxShadow: "0 0 0 6px rgba(76, 175, 80, 0)" 
+                  },
+                  "100%": { 
+                    transform: "scale(0.95)", 
+                    boxShadow: "0 0 0 0 rgba(76, 175, 80, 0)" 
+                  },
                 },
               }}
             />
@@ -374,7 +249,7 @@ const TopBar = ({ toggleSidebar, sidebarOpen, onLogout }) => {
             </Typography>
           </Box>
 
-          {/* ✅ Logout button here */}
+          {/* Logout button */}
           <Button
             variant="outlined"
             color="primary"
@@ -385,18 +260,35 @@ const TopBar = ({ toggleSidebar, sidebarOpen, onLogout }) => {
               fontWeight: 600,
               fontSize: { xs: "0.75rem", sm: "0.875rem" },
               borderRadius: "8px",
-              ml: 2,
+              borderColor: theme.palette.primary.main,
+              color: theme.palette.primary.main,
               "&:hover": {
                 bgcolor: `${theme.palette.primary.main}10`,
+                borderColor: theme.palette.primary.main,
               },
             }}
           >
-            Logout
+            <Box
+              component="span"
+              sx={{
+                display: { xs: 'none', sm: 'inline' }
+              }}
+            >
+              Logout
+            </Box>
+            <Box
+              component="span"
+              sx={{
+                display: { xs: 'inline', sm: 'none' }
+              }}
+            >
+              Exit
+            </Box>
           </Button>
         </Box>
       </Toolbar>
     </AppBar>
   );
-}
+};
 
 export default TopBar;

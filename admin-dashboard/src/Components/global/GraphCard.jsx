@@ -1,44 +1,37 @@
-// import { Paper, Typography, useTheme, Box } from "@mui/material";
 
-// const GraphCard = ({ title, chart, height = 300 }) => {
-//   const theme = useTheme();
-
-//   return (
-//     <Paper
-//       elevation={3}
-//       sx={{
-//         p: { xs: 2, sm: 3 },
-//         borderRadius: 2,
-//         backgroundColor: theme.palette.background.paper,
-//         border: `1px solid ${theme.palette.divider}`,
-//       }}
-//     >
-//       {title && (
-//         <Typography
-//           variant="h6"
-//           sx={{
-//             mb: 2,
-//             fontWeight: 600,
-//             color: theme.palette.primary.main,
-//             fontSize: { xs: '1rem', sm: '1.15rem' },
-//           }}
-//         >
-//           {title}
-//         </Typography>
-//       )}
-//       <Box sx={{ width: '100%', height: { xs: 200, sm: typeof height === 'number' ? height : 300 } }}>
-//         {chart}
-//       </Box>
-//     </Paper>
-//   );
-// };
-
-// export default GraphCard;
 
 import { Paper, Typography, useTheme, Box, alpha } from "@mui/material";
 
-const GraphCard = ({ title, chart, height = 300 }) => {
+const GraphCard = ({ title, chart, height = 300, darkMode }) => {
   const theme = useTheme();
+
+  const getCardStyles = () => {
+    if (darkMode) {
+      return {
+        backgroundColor: alpha('#1a2332', 0.95),
+        backdropFilter: 'blur(12px)',
+        border: `1px solid ${alpha('#4fc3f7', 0.15)}`,
+        boxShadow: `0 10px 30px -5px ${alpha('#000000', 0.4)}`,
+        gradientColors: ['#4fc3f7', '#29b6f6'],
+        hoverShadow: `0 15px 35px -10px ${alpha('#000000', 0.5)}`,
+        titleColor: '#ffffff',
+        underlineGradient: ['#4fc3f7', alpha('#4fc3f7', 0.4)]
+      };
+    } else {
+      return {
+        backgroundColor: alpha(theme.palette.background.paper, 0.85),
+        backdropFilter: 'blur(8px)',
+        border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+        boxShadow: `0 10px 30px -5px ${alpha(theme.palette.primary.main, 0.1)}`,
+        gradientColors: [theme.palette.primary.main, theme.palette.secondary?.main || theme.palette.primary.light],
+        hoverShadow: `0 15px 35px -10px ${alpha(theme.palette.primary.main, 0.15)}`,
+        titleColor: theme.palette.text.primary,
+        underlineGradient: [theme.palette.primary.main, alpha(theme.palette.primary.main, 0.4)]
+      };
+    }
+  };
+
+  const cardStyles = getCardStyles();
 
   return (
     <Paper
@@ -46,11 +39,11 @@ const GraphCard = ({ title, chart, height = 300 }) => {
       sx={{
         p: { xs: 2.5, sm: 3.5 },
         borderRadius: 3,
-        backgroundColor: alpha(theme.palette.background.paper, 0.85),
-        backdropFilter: 'blur(8px)',
-        border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+        backgroundColor: cardStyles.backgroundColor,
+        backdropFilter: cardStyles.backdropFilter,
+        border: cardStyles.border,
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        boxShadow: `0 10px 30px -5px ${alpha(theme.palette.primary.main, 0.1)}`,
+        boxShadow: cardStyles.boxShadow,
         position: 'relative',
         overflow: 'hidden',
         '&::before': {
@@ -60,11 +53,11 @@ const GraphCard = ({ title, chart, height = 300 }) => {
           left: 0,
           right: 0,
           height: '3px',
-          background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main || theme.palette.primary.light})`,
-          opacity: 0.7,
+          background: `linear-gradient(90deg, ${cardStyles.gradientColors[0]}, ${cardStyles.gradientColors[1]})`,
+          opacity: 0.8,
         },
         '&:hover': {
-          boxShadow: `0 15px 35px -10px ${alpha(theme.palette.primary.main, 0.15)}`,
+          boxShadow: cardStyles.hoverShadow,
           transform: 'translateY(-5px)',
         }
       }}
@@ -75,7 +68,7 @@ const GraphCard = ({ title, chart, height = 300 }) => {
           sx={{
             mb: 2.5,
             fontWeight: 600,
-            color: theme.palette.text.primary,
+            color: cardStyles.titleColor,
             fontSize: { xs: '1.1rem', sm: '1.2rem' },
             position: 'relative',
             display: 'inline-block',
@@ -87,7 +80,7 @@ const GraphCard = ({ title, chart, height = 300 }) => {
               width: '40px',
               height: '3px',
               borderRadius: '3px',
-              background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${alpha(theme.palette.primary.main, 0.4)})`,
+              background: `linear-gradient(90deg, ${cardStyles.underlineGradient[0]}, ${cardStyles.underlineGradient[1]})`,
             }
           }}
         >
@@ -108,5 +101,4 @@ const GraphCard = ({ title, chart, height = 300 }) => {
     </Paper>
   );
 };
-
 export default GraphCard;

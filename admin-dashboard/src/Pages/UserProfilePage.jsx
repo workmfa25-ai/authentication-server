@@ -1,144 +1,4 @@
-// import { useParams, useNavigate } from 'react-router-dom';
-// import { Box, Container, Typography, Paper, Grid, Avatar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button } from '@mui/material';
-// import { Person as PersonIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
-// import ViewCard from '../Components/global/ViewCard';
-// import { useSearchParams } from "react-router-dom";
 
-// const UserProfilePage = ({ users, sessions, toggleBlock }) => {
-//   const { userId } = useParams(); // Get the user ID from the URL
-//   const navigate = useNavigate();
-//   const [searchParams] = useSearchParams();
-//   const filter = searchParams.get("filter") || "all";
-
-
-//   // Find the specific user from the list passed down in props
-//   const user = users.find(u => u.id.toString() === userId);
-
-//   // Filter sessions to get the login history for this specific user
-//   // FIX 1: Complete the filtering and sort by most recent with safety checks
-//   const loginHistory = sessions && sessions.length > 0
-//     ? sessions
-//       .filter(s => s && s.user_id && s.user_id.toString() === userId)
-//       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-//       .slice(0, 5) // Show only last 5 sessions
-//     : [];
-
-//   // Handle case where user is not found
-//   if (!user) {
-//     return (
-//       <Container sx={{ px: { xs: 1, sm: 3 } }}>
-//         <Typography variant="h5" sx={{ fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>User not found.</Typography>
-//         <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(`/users?filter=${filter}`)}>
-//           Back to Users
-//         </Button>
-//       </Container>
-//     );
-//   }
-
-//   const handleToggleBlock = () => {
-//     console.log("UserProfilePage: handleToggleBlock called for user:", user.username, "current blocked state:", user.is_blocked);
-//     // FIX: Pass the opposite of current blocked state
-//     toggleBlock(user.username, !user.is_blocked);
-//   };
-
-//   // FIX 2: Calculate average session duration properly
-//   const calculateAverageSessionDuration = () => {
-//     if (!loginHistory || loginHistory.length === 0) return "N/A";
-//     // This is a placeholder calculation - you might need to adjust based on your actual session duration data
-//     return "2 hours 30 minutes";
-//   };
-
-//   // FIX 3: Get the most recent login date
-//   const getLastActiveDate = () => {
-//     if (!loginHistory || loginHistory.length === 0) return 'N/A';
-//     try {
-//       return new Date(loginHistory[0].created_at).toLocaleDateString();
-//     } catch (error) {
-//       return 'N/A';
-//     }
-//   };
-
-//   return (
-//     <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 3 } }}>
-//       <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(`/users?filter=${filter}`)} sx={{ mb: 2 }}>
-//         Back to Users List
-//       </Button>
-//       <Paper sx={{ p: { xs: 2, sm: 4 } }}>
-//         {/* User Header */}
-//         <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }} mb={4}>
-//           <Avatar sx={{ width: 56, height: 56, mr: { sm: 2, xs: 0 }, mb: { xs: 2, sm: 0 }, bgcolor: 'primary.main' }}>
-//             <PersonIcon fontSize="large" />
-//           </Avatar>
-//           <Box>
-//             <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: { xs: '1.2rem', sm: '2rem' } }}>{user.username || user.email}</Typography>
-//             <Typography variant="body1" color="text.secondary">
-//               Status: {user.is_blocked ? 'Blocked' : 'Active'} | Role: {user.is_admin ? 'Admin' : 'User'}
-//             </Typography>
-//           </Box>
-//         </Box>
-//         {/* Monthly Usage Stats */}
-//         <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.1rem' } }}>Monthly Usage Stats</Typography>
-//         <Grid container spacing={2} mb={4}>
-//           <Grid item xs={12} sm={4}>
-//             <ViewCard Title="Total Logins" Value={loginHistory ? loginHistory.length : 0} compact={true} />
-//           </Grid>
-//           <Grid item xs={12} sm={4}>
-//             <ViewCard Title="Average Session Duration" Value={calculateAverageSessionDuration() || "N/A"} compact={true} />
-//           </Grid>
-//           <Grid item xs={12} sm={4}>
-//             <ViewCard Title="Last Active" Value={getLastActiveDate() || "N/A"} compact={true} />
-//           </Grid>
-//         </Grid>
-//         {/* Login History */}
-//         <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.1rem' } }}>Login History (Last 5)</Typography>
-//         <TableContainer component={Paper} elevation={0} variant="outlined">
-//           <Table size="small">
-//             <TableHead>
-//               <TableRow>
-//                 <TableCell>Date</TableCell>
-//                 <TableCell>Time</TableCell>
-//                 <TableCell>IP Address</TableCell>
-//                 <TableCell>Location</TableCell>
-//               </TableRow>
-//             </TableHead>
-//             <TableBody>
-//               {loginHistory.length > 0 ? (
-//                 loginHistory.map((session) => (
-//                   <TableRow key={session.id}>
-//                     <TableCell>{new Date(session.created_at).toLocaleDateString()}</TableCell>
-//                     <TableCell>{new Date(session.created_at).toLocaleTimeString()}</TableCell>
-//                     <TableCell>{session.ip_address}</TableCell>
-//                     <TableCell>Mumbai, India</TableCell>
-//                   </TableRow>
-//                 ))
-//               ) : (
-//                 <TableRow>
-//                   <TableCell colSpan={4} align="center">
-//                     <Typography variant="body2" color="text.secondary">
-//                       No login history available
-//                     </Typography>
-//                   </TableCell>
-//                 </TableRow>
-//               )}
-//             </TableBody>
-//           </Table>
-//         </TableContainer>
-//         {/* Action Buttons */}
-//         <Box display="flex" justifyContent="flex-end" mt={4} gap={2}>
-//           <Button
-//             variant="outlined"
-//             color={user.is_blocked ? 'success' : 'error'}
-//             onClick={handleToggleBlock}
-//           >
-//             {user.is_blocked ? 'Grant Access' : 'Revoke Access'}
-//           </Button>
-//         </Box>
-//       </Paper>
-//     </Container>
-//   );
-// };
-
-// export default UserProfilePage;
 
 import React from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
@@ -171,8 +31,8 @@ const CHART_COLORS = {
   gray: '#bdbdbd'
 };
 
-// Nivo theme to match the screenshot vibe (bold axes, dashed vertical grid)
-const nivoTheme = {
+// Light theme for charts
+const lightNivoTheme = {
   textColor: '#374151',
   fontSize: 12,
   axis: {
@@ -195,8 +55,34 @@ const nivoTheme = {
   }
 };
 
-/* ===== Hardcoded demo data (replace later with real builders) ===== */
-
+// Dark theme for charts
+const darkNivoTheme = {
+  textColor: '#ffffff',
+  fontSize: 12,
+  axis: {
+    domain: {
+      line: { stroke: '#4a5568', strokeWidth: 1 }
+    },
+    ticks: {
+      line: { stroke: '#4a5568', strokeWidth: 1 },
+      text: { fill: '#ffffff', fontWeight: 500 }
+    },
+    legend: {
+      text: { fill: '#ffffff', fontWeight: 700 }
+    }
+  },
+  grid: {
+    line: { stroke: '#4a5568', strokeDasharray: '4 4' }
+  },
+  tooltip: {
+    container: { background: '#2d3748', color: '#fff', fontSize: 12, borderRadius: 6, boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }
+  },
+  legends: {
+    text: {
+      fill: '#ffffff'
+    }
+  }
+};
 
 // --- Real Data Chart Builders ---
 // 1. Weekly User Logins (Line Chart)
@@ -268,7 +154,7 @@ const getActivityDonut = (sessions) => {
   ];
 };
 
-const UserProfilePage = ({ users, sessions, toggleBlock }) => {
+const UserProfilePage = ({ users, sessions, toggleBlock, darkMode }) => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -284,6 +170,9 @@ const UserProfilePage = ({ users, sessions, toggleBlock }) => {
     userSessions.length > 0
       ? [...userSessions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5)
       : [];
+
+  // Choose theme based on dark mode
+  const nivoTheme = darkMode ? darkNivoTheme : lightNivoTheme;
 
   if (!user) {
     return (
@@ -338,7 +227,7 @@ const UserProfilePage = ({ users, sessions, toggleBlock }) => {
           Usage Insights
         </Typography>
         <Grid container spacing={2} mb={4}>
-          {/* Login Trends - Line chart styled like your screenshot */}
+          {/* Login Trends - Line chart */}
           <Grid item xs={12} sm={4}>
             <Paper variant="outlined" sx={{ p: 2, height: 320, borderRadius: 3 }}>
               <Typography variant="subtitle1" sx={{ mb: 1, color: 'primary.main', fontWeight: 700 }}>
@@ -504,4 +393,3 @@ const UserProfilePage = ({ users, sessions, toggleBlock }) => {
 };
 
 export default UserProfilePage;
-

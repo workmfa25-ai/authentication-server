@@ -1,8 +1,10 @@
+
+
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Box, useTheme, useMediaQuery } from "@mui/material";
+import { Box, useMediaQuery, CssBaseline } from "@mui/material";
 import { ThemeProvider } from '@mui/material/styles';
-import theme from './theme';
+import createAppTheme from './theme'; // Updated import
 import './index.css';
 import "./Components/tables/table.css";
 
@@ -17,12 +19,29 @@ import UserProfilePage from './Pages/UserProfilePage';
 import AnalyticsPage from './Pages/AnalyticsPage';
 import Sidebar from "./Components/global/Sidebar";
 import AllJwtSessionsPage from './Pages/AllJwtSessionsPage';
-// import SessionsPage from './Pages/SessionsPage';
 
 const API_URL = "http://127.0.0.1:8000";
 
-
 function App() {
+  // FIXED: Initialize dark mode state from localStorage immediately
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    return savedDarkMode !== null ? JSON.parse(savedDarkMode) : false;
+  });
+
+  // Update localStorage and document theme when dark mode changes
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
+  // Create theme based on dark mode state
+  const theme = createAppTheme(darkMode);
+
   // Helper to calculate current month login data from JWT sessions
   function calculateCurrentMonthLoginData(jwtSessions) {
     if (!Array.isArray(jwtSessions) || jwtSessions.length === 0) {
@@ -56,33 +75,26 @@ function App() {
     }));
 
     return { data, daysInMonth, monthTitle: `${monthLong} ${year}` };
-  };
+  }
 
   const {
     isLoggedIn,
     users,
-    // recentsessions,
-    // allsessions,
     error,
     isLoading,
     handleLogin,
     handleLogout,
     toggleBlock,
-    recentJwtSessions,        // For dashboard (10 items)
-    handleRevokeSession,      // Fixed the typo that was "handleRevokeSessionz"
-    jwtSessions,              // Full list for charts
-    tableJwtSessions,         // For pagination tables
-    jwtTotal,                 // Total count for pagination
-    jwtLoading,               // Loading state d pagination
+    recentJwtSessions,
+    handleRevokeSession,
+    jwtSessions,
+    tableJwtSessions,
+    jwtTotal,
+    jwtLoading,
     fetchJwtSessionsPage,
-    // sessionTotal,
-    // sessionLoading,
-    // fetchSessionsPage,
-
-
-
   } = useAdmin(API_URL);
-  //logout
+
+  // Logout
   const navigate = useNavigate();
 
   const onLogout = async () => {
@@ -99,14 +111,14 @@ function App() {
     } catch (err) {
       console.error("Logout failed:", err);
     } finally {
-      handleLogout();             // ✅ call the hook’s logout to reset state
-      navigate("/login", { replace: true });  // ✅ redirect
+      handleLogout();
+      navigate("/login", { replace: true });
     }
   };
 
-
   const [isSideBarOpen, setisSidebarOpen] = useState(false);
-  //anomaly change
+
+  // Anomaly change
   const [lastSeenAnomalyId, setLastSeenAnomalyId] = useState(() => {
     return localStorage.getItem("lastSeenAnomalyId") || null;
   });
@@ -118,11 +130,10 @@ function App() {
         const data = await res.json();
 
         if (Array.isArray(data) && data.length > 0) {
-          const newest = data[0]; // backend returns DESC
+          const newest = data[0];
           const newestId = newest.id.toString();
 
           if (isInitialLoad) {
-            // ✅ On first load, just record the latest ID silently (no notification)
             if (!lastSeenAnomalyId) {
               setLastSeenAnomalyId(newestId);
               return;
@@ -130,7 +141,6 @@ function App() {
           }
 
           if (newestId !== lastSeenAnomalyId) {
-            // ✅ Notify only if this is truly new
             if (Notification.permission === "granted" && navigator.serviceWorker) {
               navigator.serviceWorker.ready.then((registration) => {
                 registration.showNotification("⚠️ Concurrent Login Detected", {
@@ -150,9 +160,7 @@ function App() {
       }
     };
 
-    // ✅ Fetch once on initial load (silent)
     fetchAnomalies(true);
-
     const interval = setInterval(() => fetchAnomalies(false), 10000);
     return () => clearInterval(interval);
   }, [lastSeenAnomalyId]);
@@ -163,43 +171,11 @@ function App() {
     }
   }, [lastSeenAnomalyId]);
 
-  const muiTheme = useTheme();
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const toggleSidebar = () => {
     setisSidebarOpen(!isSideBarOpen);
   };
-
-  // const calculateCurrentMonthLoginData = (jwtSessions) => {
-  //   const now = new Date();
-  //   const year = now.getFullYear();
-  //   const month = now.getMonth(); // 0–11
-  //   const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  //   const counts = Array.from({ length: daysInMonth }, () => 0);
-
-  //   if (Array.isArray(jwtSessions)) {
-  //     for (const s of jwtSessions) {
-  //       if (!s?.created_at) continue;
-  //       const d = new Date(s.created_at);
-  //       if (d.getFullYear() === year && d.getMonth() === month) {
-  //         counts[d.getDate() - 1] += 1;
-  //       }
-  //     }
-  //   }
-
-  //   const monthShort = now.toLocaleString('default', { month: 'short' });
-  //   const monthLong = now.toLocaleString('default', { month: 'long' });
-
-  //   // Shape for the chart
-  //   const data = counts.map((c, i) => ({
-  //     dayNumber: i + 1,
-  //     logins: c,
-  //     dateLabel: `${monthShort} ${i + 1}, ${year}` // for tooltip
-  //   }));
-
-  //   return { data, daysInMonth, monthTitle: `${monthLong} ${year}` };
-  // };
 
   const calculateWeeklyLoginData = () => {
     if (!jwtSessions || jwtSessions.length === 0) {
@@ -217,25 +193,19 @@ function App() {
     const loginCounts = [0, 0, 0, 0, 0, 0, 0];
     const today = new Date();
     
-    // Get the current day of the week (0 = Sunday, 1 = Monday, etc.)
     const currentDayOfWeek = today.getDay();
-    
-    // Calculate the date of the most recent Monday (start of the week)
-    // If today is Sunday (0), we need to go back 6 days to find Monday
-    // If today is any other day, we go back (current day - 1) days
     const daysToSubtract = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
     const currentWeekMonday = new Date(today);
     currentWeekMonday.setDate(today.getDate() - daysToSubtract);
-    currentWeekMonday.setHours(0, 0, 0, 0);  // Start of the day
+    currentWeekMonday.setHours(0, 0, 0, 0);
 
     jwtSessions.forEach(session => {
       if (session.created_at) {
         const date = new Date(session.created_at);
         
-        // Only count sessions from the current week (Monday to today)
         if (date >= currentWeekMonday && date <= today) {
-          const dayOfWeek = date.getDay(); // 0 = Sun
-          const chartIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Mon-Sun
+          const dayOfWeek = date.getDay();
+          const chartIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
           loginCounts[chartIndex]++;
         }
       }
@@ -254,9 +224,9 @@ function App() {
 
   const weeklyLogindata = calculateWeeklyLoginData();
 
-
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Routes>
         {/* Public Route: Login */}
         <Route
@@ -265,11 +235,14 @@ function App() {
             isLoggedIn ? (
               <Navigate to="/" replace />
             ) : (
-              <LoginForm handleLogin={handleLogin} error={error} isLoading={isLoading} />
+              <LoginForm 
+                handleLogin={handleLogin} 
+                error={error} 
+                isLoading={isLoading} 
+                darkMode={darkMode}
+              />
             )
           }
-
-
         />
 
         {/* Protected Routes */}
@@ -277,9 +250,17 @@ function App() {
           <Route
             path="/*"
             element={
-              <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+              <Box sx={{ 
+                display: 'flex', 
+                minHeight: '100vh',
+                bgcolor: theme.palette.background.default,
+              }}>
                 {/* Sidebar */}
-                <Sidebar isOpen={isSideBarOpen} toggleSidebar={toggleSidebar} />
+                <Sidebar 
+                  isOpen={isSideBarOpen} 
+                  toggleSidebar={toggleSidebar}
+                  darkMode={darkMode}
+                />
 
                 {/* Main Area */}
                 <Box
@@ -296,6 +277,7 @@ function App() {
                       duration: theme.transitions.duration.enteringScreen,
                     }),
                     minWidth: 0,
+                    bgcolor: theme.palette.background.default,
                   }}
                 >
                   {/* TopBar */}
@@ -303,14 +285,15 @@ function App() {
                     toggleSidebar={toggleSidebar}
                     sidebarOpen={isSideBarOpen}
                     onLogout={onLogout}
+                    darkMode={darkMode}
+                    toggleDarkMode={toggleDarkMode}
                   />
-
 
                   {/* Content */}
                   <Box
                     className="app-container"
                     sx={{
-                      bgcolor: 'transparent',
+                      bgcolor: theme.palette.background.default,
                       minHeight: 'calc(100vh - 64px)',
                       pt: 3,
                       pb: 3,
@@ -334,39 +317,46 @@ function App() {
                             jwtSessiontotal={jwtTotal}
                             fetchJwtSessions={fetchJwtSessionsPage}
                             currentMonthLogindata={calculateCurrentMonthLoginData(jwtSessions)}
+                            darkMode={darkMode}
                             replace
                           />
                         }
                       />
                       <Route
                         path="/users"
-                        element={<UsersPage users={users} toggleBlock={toggleBlock} replace />}
+                        element={
+                          <UsersPage 
+                            users={users} 
+                            toggleBlock={toggleBlock} 
+                            darkMode={darkMode}
+                            replace 
+                          />
+                        }
                       />
                       <Route
                         path="/users/:userId"
-                        element={<UserProfilePage users={users} sessions={jwtSessions} toggleBlock={toggleBlock} replace />}
+                        element={
+                          <UserProfilePage 
+                            users={users} 
+                            sessions={jwtSessions} 
+                            toggleBlock={toggleBlock} 
+                            darkMode={darkMode}
+                            replace 
+                          />
+                        }
                       />
-                      {/* <Route
-                        path="/sessions"
-                        element={<SessionsPage
-                          allsessions={allsessions}
-                          title="All Sessions"
-                          isLoading={isLoading}
-                          sessionTotal={sessionTotal}
-                          fetchSessionsPage={fetchSessionsPage}
-                          sessionLoading={sessionLoading} replace />}
-                      /> */}
                       <Route
                         path="/jwt-sessions"
                         element={
                           <AllJwtSessionsPage
                             title="All JWT Sessions"
-                            jwtSessions={jwtSessions}              // Paginated data
-                            jwtTotal={jwtTotal}                    // Total count
-                            jwtLoading={jwtLoading}                // Pagination loading state
-                            fetchJwtSessionsPage={fetchJwtSessionsPage} // Pagination function
+                            jwtSessions={jwtSessions}
+                            jwtTotal={jwtTotal}
+                            jwtLoading={jwtLoading}
+                            fetchJwtSessionsPage={fetchJwtSessionsPage}
                             onRevokeSession={handleRevokeSession}
-                            isLoading={isLoading}                  // General loading state
+                            isLoading={isLoading}
+                            darkMode={darkMode}
                             replace
                           />
                         }
@@ -378,7 +368,7 @@ function App() {
                             weeklyLogindata={weeklyLogindata}
                             allsessions={jwtSessions}
                             users={users}
-
+                            darkMode={darkMode}
                             replace
                           />
                         }
@@ -391,7 +381,6 @@ function App() {
             }
           />
         ) : (
-          // If not logged in, redirect all other routes to login
           <Route path="*" element={<Navigate to="/login" replace />} />
         )}
       </Routes>
