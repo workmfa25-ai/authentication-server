@@ -1,20 +1,47 @@
-// import { useTheme } from "@mui/material";
-// import { ResponsiveBar } from '@nivo/bar';
-// import { prepareSessionsHealthData } from "../../utils/chartUtils";
 
-// const SessionsHealthChart = ({ sessions }) => {
+
+
+// import { Box, Typography, useTheme } from "@mui/material";
+// import { ResponsiveBar } from '@nivo/bar';
+// import { memo, useMemo } from 'react';
+
+// const SessionsHealthChartBase = ({ sessions }) => {
 //   const theme = useTheme();
 
-//   // Use chart utility function
-//   const data = prepareSessionsHealthData(sessions, theme);
+//   // Memoize session status calculations
+//   const sessionCounts = useMemo(() => {
+//     if (!Array.isArray(sessions) || sessions.length === 0) {
+//       return { active: 0, inactive: 0, expired: 0 };
+//     }
 
-//   /* Original code - commented out in favor of the utility function
-//   // Calculate session health data
-//   const activeCount = sessions.filter(s => s.is_active).length;
-//   const inactiveCount = sessions.filter(s => !s.is_active).length;
-//   const expiredCount = sessions.filter(s => s.expired).length;
+//     const now = new Date();
+//     const fifteenMinutesAgo = new Date(now - 15 * 60 * 1000);
 
-//   // Clone data objects to avoid mutation by Nivo
+//     return sessions.reduce((acc, session) => {
+//       if (!session.is_active) {
+//         acc.inactive++;
+//       } else {
+//         const sessionDate = new Date(session.created_at);
+//         acc[sessionDate > fifteenMinutesAgo ? 'active' : 'expired']++;
+//       }
+//       return acc;
+//     }, { active: 0, inactive: 0, expired: 0 });
+//   }, [sessions]);
+
+//   if (!Array.isArray(sessions) || sessions.length === 0) {
+//     return (
+//       <Box display="flex" justifyContent="center" alignItems="center" height={400}>
+//         <Typography variant="body1" color="text.secondary">
+//           No session data available
+//         </Typography>
+//       </Box>
+//     );
+//   }
+
+//   const activeCount = sessionCounts.active;
+//   const expiredCount = sessionCounts.expired;
+//   const inactiveCount = sessionCounts.inactive;
+
 //   const data = [
 //     {
 //       status: 'Active',
@@ -31,8 +58,7 @@
 //       count: expiredCount,
 //       color: theme.palette.error.main
 //     }
-//   ].map(obj => ({ ...obj }));
-//   */
+//   ];
 
 //   return (
 //     <ResponsiveBar
@@ -108,8 +134,10 @@
 //   );
 // };
 
-// export default SessionsHealthChart;
+// const SessionsHealthChart = memo(SessionsHealthChartBase);
+// SessionsHealthChart.displayName = 'SessionsHealthChart';
 
+// export default SessionsHealthChart;
 
 import { Box, Typography, useTheme } from "@mui/material";
 import { ResponsiveBar } from '@nivo/bar';
@@ -117,16 +145,14 @@ import { memo, useMemo } from 'react';
 
 const SessionsHealthChartBase = ({ sessions }) => {
   const theme = useTheme();
-
+  
   // Memoize session status calculations
   const sessionCounts = useMemo(() => {
     if (!Array.isArray(sessions) || sessions.length === 0) {
       return { active: 0, inactive: 0, expired: 0 };
     }
-
     const now = new Date();
     const fifteenMinutesAgo = new Date(now - 15 * 60 * 1000);
-
     return sessions.reduce((acc, session) => {
       if (!session.is_active) {
         acc.inactive++;
@@ -151,6 +177,10 @@ const SessionsHealthChartBase = ({ sessions }) => {
   const activeCount = sessionCounts.active;
   const expiredCount = sessionCounts.expired;
   const inactiveCount = sessionCounts.inactive;
+  
+  // Calculate max value to determine appropriate tick interval
+  const maxValue = Math.max(activeCount, inactiveCount, expiredCount);
+  const tickInterval = Math.max(5, Math.ceil(maxValue / 10) * 5); // Minimum gap of 5
 
   const data = [
     {
@@ -200,14 +230,16 @@ const SessionsHealthChartBase = ({ sessions }) => {
         tickRotation: 0,
         legend: 'Count',
         legendPosition: 'middle',
-        legendOffset: -30
+        legendOffset: -30,
+        tickValues: maxValue <= 20 ? 
+          // For small values, show every 5
+          Array.from({ length: Math.floor(maxValue / 5) + 2 }, (_, i) => i * 5) :
+          // For larger values, use calculated interval
+          Array.from({ length: Math.floor(maxValue / tickInterval) + 2 }, (_, i) => i * tickInterval)
       }}
       labelSkipWidth={12}
       labelSkipHeight={12}
-      labelTextColor={{
-        from: 'color',
-        modifiers: [['darker', 1.6]]
-      }}
+      labelTextColor="black"
       theme={{
         background: 'transparent',
         text: {
@@ -246,5 +278,4 @@ const SessionsHealthChartBase = ({ sessions }) => {
 
 const SessionsHealthChart = memo(SessionsHealthChartBase);
 SessionsHealthChart.displayName = 'SessionsHealthChart';
-
 export default SessionsHealthChart;
