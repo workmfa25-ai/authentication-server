@@ -7,7 +7,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Enhanced scrollbar styles */
+/* Enhanced scrollbar styles - Light Mode */
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -25,6 +25,20 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #003399 0%, #0066cc 100%);
+}
+
+/* Dark Mode Scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+  border: 1px solid rgba(79, 195, 247, 0.1);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #29b6f6 0%, #039be5 100%);
 }
 
 .Container {
@@ -51,6 +65,15 @@ body {
   transform: scale(1.02);
 }
 
+/* Dark mode logobox */
+[data-theme="dark"] .logobox {
+  background: rgba(79, 195, 247, 0.08);
+}
+
+[data-theme="dark"] .logobox:hover {
+  background: rgba(79, 195, 247, 0.12);
+}
+
 .loginImgContainer {
   height: 150px;
   width: 150px;
@@ -60,6 +83,11 @@ body {
   align-items: center;
   border-radius: 12px;
   background: rgba(25, 118, 210, 0.05);
+}
+
+/* Dark mode login container */
+[data-theme="dark"] .loginImgContainer {
+  background: rgba(79, 195, 247, 0.05);
 }
 
 .logoimg {
@@ -86,8 +114,6 @@ body {
   z-index: 1200;
   overflow-x: hidden;
   overflow-y: auto;
-  /* Sidebar divider color */
-  border-right: 2px solid #1976d2 !important;
 }
 
 /* Desktop Sidebar States */
@@ -244,41 +270,145 @@ body {
   transition: left 0.5s;
 }
 
+[data-theme="dark"] .sidebar .MuiListItemButton-root::before {
+  background: linear-gradient(90deg, transparent, rgba(79, 195, 247, 0.4), transparent);
+}
+
 .sidebar .MuiListItemButton-root:hover::before {
   left: 100%;
 }
 
+/* ========== FIXED COLOR STATES ========== */
+
+/* Default state colors - BLACK for light mode unselected items */
+.sidebar .MuiListItemButton-root .MuiListItemIcon-root,
+.sidebar .MuiListItemButton-root .MuiListItemIcon-root svg {
+  color: #111 !important;
+  fill: #111 !important;
+}
+
+.sidebar .MuiListItemButton-root .MuiListItemText-root {
+  color: #111 !important;
+}
+
+/* Dark mode default colors - WHITE for dark mode */
+[data-theme="dark"] .sidebar .MuiListItemButton-root .MuiListItemIcon-root,
+[data-theme="dark"] .sidebar .MuiListItemButton-root .MuiListItemIcon-root svg {
+  color: #fff !important;
+  fill: #fff !important;
+}
+
+[data-theme="dark"] .sidebar .MuiListItemButton-root .MuiListItemText-root {
+  color: #fff !important;
+}
+
+/* Light mode hover states - Black on hover */
 .sidebar .MuiListItemButton-root:hover {
   background-color: rgba(25, 118, 210, 0.08) !important;
   transform: translateX(2px);
   box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
 }
 
-/* Active state */
-/* Selected state: always black icon and text */
-.sidebar .MuiListItemButton-root.Mui-selected {
-  background-color: rgba(25, 118, 210, 0.12) !important;
-  border-left: 3px solid #1976d2 !important;
-  transform: translateX(2px);
-  color: #111 !important;
-}
-
-.sidebar .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root,
-.sidebar .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root svg {
+.sidebar .MuiListItemButton-root:hover .MuiListItemIcon-root,
+.sidebar .MuiListItemButton-root:hover .MuiListItemIcon-root svg {
   color: #111 !important;
   fill: #111 !important;
 }
 
-/* Remove border on closed desktop sidebar to maintain centering */
+.sidebar .MuiListItemButton-root:hover .MuiListItemText-root {
+  color: #111 !important;
+}
+
+/* Dark mode hover states - Blue on hover */
+[data-theme="dark"] .sidebar .MuiListItemButton-root:hover {
+  background-color: rgba(79, 195, 247, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(79, 195, 247, 0.15);
+}
+
+[data-theme="dark"] .sidebar .MuiListItemButton-root:hover .MuiListItemIcon-root,
+[data-theme="dark"] .sidebar .MuiListItemButton-root:hover .MuiListItemIcon-root svg {
+  color: #4fc3f7 !important;
+  fill: #4fc3f7 !important;
+}
+
+[data-theme="dark"] .sidebar .MuiListItemButton-root:hover .MuiListItemText-root {
+  color: #4fc3f7 !important;
+}
+
+/* Active state - Light mode - WHITE text/icons on blue background */
+.sidebar .MuiListItemButton-root.Mui-selected {
+  background-color: #1976d2 !important;
+  border-left: 3px solid #1565C0 !important;
+  transform: translateX(2px);
+  border-radius: 8px !important;
+}
+
+.sidebar .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root,
+.sidebar .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root svg,
+.sidebar .MuiListItemButton-root.Mui-selected .MuiListItemText-root,
+.sidebar .MuiListItemButton-root.Mui-selected .MuiListItemText-root .MuiTypography-root {
+  color: #fff !important;
+  fill: #fff !important;
+}
+
+/* Active state - Dark mode - White text/icons */
+[data-theme="dark"] .sidebar .MuiListItemButton-root.Mui-selected {
+  background-color: rgba(79, 195, 247, 0.12) !important;
+  border-left: 3px solid #4fc3f7 !important;
+}
+
+[data-theme="dark"] .sidebar .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root,
+[data-theme="dark"] .sidebar .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root svg {
+  color: #fff !important;
+  fill: #fff !important;
+}
+
+[data-theme="dark"] .sidebar .MuiListItemButton-root.Mui-selected .MuiListItemText-root {
+  color: #fff !important;
+}
+
+/* Active hover state - Light mode - Keep white on hover */
+.sidebar .MuiListItemButton-root.Mui-selected:hover {
+  background-color: #1565C0 !important;
+}
+
+.sidebar .MuiListItemButton-root.Mui-selected:hover .MuiListItemIcon-root,
+.sidebar .MuiListItemButton-root.Mui-selected:hover .MuiListItemIcon-root svg {
+  color: #fff !important;
+  fill: #fff !important;
+}
+
+.sidebar .MuiListItemButton-root.Mui-selected:hover .MuiListItemText-root {
+  color: #fff !important;
+}
+
+/* Active hover state - Dark mode - Blue on hover */
+[data-theme="dark"] .sidebar .MuiListItemButton-root.Mui-selected:hover {
+  background-color: rgba(79, 195, 247, 0.16) !important;
+}
+
+[data-theme="dark"] .sidebar .MuiListItemButton-root.Mui-selected:hover .MuiListItemIcon-root,
+[data-theme="dark"] .sidebar .MuiListItemButton-root.Mui-selected:hover .MuiListItemIcon-root svg {
+  color: #4fc3f7 !important;
+  fill: #4fc3f7 !important;
+}
+
+[data-theme="dark"] .sidebar .MuiListItemButton-root.Mui-selected:hover .MuiListItemText-root {
+  color: #4fc3f7 !important;
+}
+
+/* Remove border on closed desktop sidebar but KEEP the blue background */
 @media (min-width: 900px) {
   .sidebar.closed .MuiListItemButton-root.Mui-selected {
     border-left: none !important;
-    background-color: rgba(25, 118, 210, 0.15) !important;
+    background-color: #1976d2 !important;
+    border-radius: 8px !important;
   }
-}
 
-.sidebar .MuiListItemButton-root.Mui-selected:hover {
-  background-color: rgba(25, 118, 210, 0.16) !important;
+  [data-theme="dark"] .sidebar.closed .MuiListItemButton-root.Mui-selected {
+    background-color: rgba(79, 195, 247, 0.15) !important;
+    border-radius: 8px !important;
+  }
 }
 
 /* Toggle button */
@@ -289,6 +419,10 @@ body {
 .sidebar .MuiIconButton-root:hover {
   transform: scale(1.1) !important;
   box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2) !important;
+}
+
+[data-theme="dark"] .sidebar .MuiIconButton-root:hover {
+  box-shadow: 0 4px 12px rgba(79, 195, 247, 0.2) !important;
 }
 
 /* -------------------- ANIMATIONS -------------------- */
@@ -314,9 +448,17 @@ body {
     background-color: rgba(25, 118, 210, 0.2) !important;
   }
 
+  [data-theme="dark"] .sidebar .MuiListItemButton-root:hover {
+    background-color: rgba(79, 195, 247, 0.2) !important;
+  }
+
   .sidebar .MuiListItemButton-root.Mui-selected {
     background-color: rgba(25, 118, 210, 0.25) !important;
     border-left-width: 4px !important;
+  }
+
+  [data-theme="dark"] .sidebar .MuiListItemButton-root.Mui-selected {
+    background-color: rgba(79, 195, 247, 0.25) !important;
   }
 }
 
@@ -338,17 +480,18 @@ body {
   }
 }
 
+/* Dark mode specific scrollbar */
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-track {
     background: #2a2a2a;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+    background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
   }
 
   .logobox:hover {
-    background: rgba(66, 165, 245, 0.12);
+    background: rgba(79, 195, 247, 0.12);
   }
 }
 
@@ -358,16 +501,29 @@ body {
   outline-offset: 2px !important;
 }
 
+[data-theme="dark"] .sidebar .MuiListItemButton-root:focus {
+  outline: 2px solid #4fc3f7 !important;
+}
+
 button:focus,
 .MuiIconButton-root:focus {
   outline: 2px solid #1976d2;
   outline-offset: 2px;
 }
 
+[data-theme="dark"] button:focus,
+[data-theme="dark"] .MuiIconButton-root:focus {
+  outline: 2px solid #4fc3f7;
+}
+
 .loading-shimmer {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
+}
+
+[data-theme="dark"] .loading-shimmer {
+  background: linear-gradient(90deg, #2d3748 25%, #1a2332 50%, #2d3748 75%);
 }
 
 @keyframes loading {
@@ -414,21 +570,25 @@ html {
   }
 }
 
-/* Sidebar footer text color */
+/* Sidebar footer text color - Light mode */
 .sidebar .MuiTypography-caption {
   color: #1976d2 !important;
   opacity: 0.85;
 }
 
-/* Make sidebar top and bottom dividers a darker blue when open */
-.sidebar.open {
-  border-right: 2px solid #003399 !important;
+/* Sidebar footer text color - Dark mode */
+[data-theme="dark"] .sidebar .MuiTypography-caption {
+  color: #4fc3f7 !important;
+  opacity: 0.85;
 }
 
-.sidebar.open .MuiBox-root[style*='border-bottom'] {
-  border-bottom: 2px solid #003399 !important;
+/* Dark mode body background */
+[data-theme="dark"] body {
+  background-color: #0a0e1a;
+  color: #ffffff;
 }
 
-.sidebar.open .MuiBox-root[style*='border-top'] {
-  border-top: 2px solid #003399 !important;
+/* Smooth theme transition */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }

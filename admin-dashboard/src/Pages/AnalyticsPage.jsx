@@ -222,6 +222,7 @@ const AnalyticsPage = ({
   weeklyLogindata = [],
   allsessions = [],
   users = [],
+  darkMode
   
 
 }) => {
@@ -265,6 +266,7 @@ const AnalyticsPage = ({
         {/* Monthly Login Chart - Full Width */}
         <Box sx={{ mb: 4 }}>
           <GraphCard
+            darkMode={darkMode}
             title="Monthly Login History"
             chart={<MonthlyLoginChart allsessions={allsessions} />}
             height={360}
@@ -280,6 +282,7 @@ const AnalyticsPage = ({
         >
           {/* Weekly Login Chart */}
           <GraphCard
+            darkMode={darkMode}
             title='Weekly User Logins (Last 7 Days)'
             chart={<WeeklyLoginChart data={weeklyLogindata} />}
             height={320}
@@ -288,11 +291,13 @@ const AnalyticsPage = ({
           {/* Right Column - Stacked Charts */}
           <Box display="grid" gridTemplateRows="1fr 1fr" gap={{ xs: 2, sm: 3 }}>
             <GraphCard
+            darkMode={darkMode}
               title='Session Health Overview'
               chart={<SessionsHealthChart sessions={allsessions} />}
               height={150}
             />
             <GraphCard
+              darkMode={darkMode}
               title='User Distribution'
               chart={<UserDistributionChart users={users} />}
               height={150}
@@ -303,6 +308,7 @@ const AnalyticsPage = ({
         {/* Hourly Activity Heatmap - Full Width */}
         <Box sx={{ mb: 4 }}>
           <GraphCard
+          darkMode={darkMode}
             title="Hourly Activity Heatmap"
             chart={<HourlyActivityHeatmap allsessions={allsessions} />}
             height={400}
@@ -317,6 +323,7 @@ const AnalyticsPage = ({
         >
           {/* Login Trends Summary */}
           <GraphCard
+          darkMode={darkMode}
             title="Login Trends Analysis"
             chart={
               <Box sx={{ p: 2, textAlign: 'center' }}>
@@ -364,6 +371,7 @@ const AnalyticsPage = ({
 
           {/* User Activity Metrics */}
           <GraphCard
+          darkMode={darkMode}
             title="User Activity Metrics"
             chart={
               <Box sx={{ p: 2 }}>
