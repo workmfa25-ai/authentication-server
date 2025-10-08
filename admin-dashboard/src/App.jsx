@@ -20,7 +20,9 @@ import AnalyticsPage from './Pages/AnalyticsPage';
 import Sidebar from "./Components/global/Sidebar";
 import AllJwtSessionsPage from './Pages/AllJwtSessionsPage';
 
-const API_URL = "http://127.0.0.1:8000";
+// Use import.meta.env for Vite or modern React setups
+const API_URL = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL || "http://localhost:8000";
+
 
 function App() {
   // FIXED: Initialize dark mode state from localStorage immediately

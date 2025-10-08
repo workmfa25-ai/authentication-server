@@ -1,7 +1,9 @@
+import os
 import requests
 import getpass
 
-API_URL = "http://localhost:8000"  # Change to your server's address if remote
+API_URL = os.getenv("VITE_API_URL") or os.getenv("REACT_APP_API_URL") or "http://localhost:8000"
+ # Change to your server's address if remote
 
 def print_grid(grid):
     print("\nYour Grid:")
