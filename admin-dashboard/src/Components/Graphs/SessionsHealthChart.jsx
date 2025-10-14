@@ -10,19 +10,16 @@ const SessionsHealthChartBase = ({ sessions }) => {
   // Memoize session status calculations
   const sessionCounts = useMemo(() => {
     if (!Array.isArray(sessions) || sessions.length === 0) {
-      return { active: 0, inactive: 0, expired: 0 };
+      return { active: 0, inactive: 0 };
     }
-    const now = new Date();
-    const fifteenMinutesAgo = new Date(now - 15 * 60 * 1000);
     return sessions.reduce((acc, session) => {
-      if (!session.is_active) {
-        acc.inactive++;
+      if (session.is_active) {
+        acc.active++;
       } else {
-        const sessionDate = new Date(session.created_at);
-        acc[sessionDate > fifteenMinutesAgo ? 'active' : 'expired']++;
+        acc.inactive++;
       }
       return acc;
-    }, { active: 0, inactive: 0, expired: 0 });
+    }, { active: 0, inactive: 0 });
   }, [sessions]);
 
   if (!Array.isArray(sessions) || sessions.length === 0) {
@@ -36,11 +33,10 @@ const SessionsHealthChartBase = ({ sessions }) => {
   }
 
   const activeCount = sessionCounts.active;
-  const expiredCount = sessionCounts.expired;
   const inactiveCount = sessionCounts.inactive;
-  
+
   // Calculate max value to determine appropriate tick interval
-  const maxValue = Math.max(activeCount, inactiveCount, expiredCount);
+  const maxValue = Math.max(activeCount, inactiveCount);
   const tickInterval = Math.max(5, Math.ceil(maxValue / 10) * 5); // Minimum gap of 5
 
   const data = [
@@ -53,11 +49,6 @@ const SessionsHealthChartBase = ({ sessions }) => {
       status: 'Inactive',
       count: inactiveCount,
       color: theme.palette.warning?.main || '#ff9800'
-    },
-    {
-      status: 'Expired',
-      count: expiredCount,
-      color: theme.palette.error.main
     }
   ];
 

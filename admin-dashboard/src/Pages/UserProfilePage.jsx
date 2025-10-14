@@ -1,6 +1,4 @@
-
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box,
@@ -15,13 +13,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button
+  Button,
+  CircularProgress
 } from '@mui/material';
 import { Person as PersonIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 
 // Nivo
 import { ResponsiveLine } from '@nivo/line';
-import { ResponsiveBar } from '@nivo/bar';
 import { ResponsivePie } from '@nivo/pie';
 
 const CHART_COLORS = {
@@ -86,85 +84,155 @@ const darkNivoTheme = {
 
 // --- Real Data Chart Builders ---
 // 1. Weekly User Logins (Line Chart)
+// Replace these functions in UserProfilePage.jsx
+
+// 1. Weekly User Logins (Line Chart) - FIXED
 const getWeeklyLoginSeries = (sessions) => {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const counts = [0, 0, 0, 0, 0, 0, 0];
+  
+  if (!Array.isArray(sessions)) {
+    console.warn('getWeeklyLoginSeries: sessions is not an array', sessions);
+    return [{
+      id: 'User Logins',
+      data: days.map((d, i) => ({ x: d, y: 0 }))
+    }];
+  }
+  
   sessions.forEach(s => {
-    if (s.created_at) {
-      const d = new Date(s.created_at);
-      const day = d.getDay(); // 0=Sun
-      const idx = day === 0 ? 6 : day - 1; // Mon=0, Sun=6
-      counts[idx]++;
+    if (s && s.created_at) {
+      try {
+        const d = new Date(s.created_at);
+        if (!isNaN(d.getTime())) {
+          const day = d.getDay(); // 0=Sun
+          const idx = day === 0 ? 6 : day - 1; // Mon=0, Sun=6
+          counts[idx]++;
+        }
+      } catch (e) {
+        console.warn('Invalid date in session:', s.created_at);
+      }
     }
   });
+  
   return [{
     id: 'User Logins',
     data: days.map((d, i) => ({ x: d, y: counts[i] }))
   }];
 };
 
-// 2. Session Duration (Avg per Week) - Bar Chart
-const getWeeklyDuration = (sessions) => {
-  // Group by week (ISO week)
-  const weekMap = {};
-  sessions.forEach(s => {
-    if (s.created_at && s.ended_at) {
-      const start = new Date(s.created_at);
-      const end = new Date(s.ended_at);
-      const duration = (end - start) / 60000; // ms to min
-      // Get ISO week string
-      const week = start.getFullYear() + '-W' + String(getISOWeek(start)).padStart(2, '0');
-      if (!weekMap[week]) weekMap[week] = [];
-      weekMap[week].push(duration);
-    }
-  });
-  // Format for nivo
-  return Object.entries(weekMap).sort().map(([week, arr]) => ({
-    week,
-    minutes: Math.round(arr.reduce((a, b) => a + b, 0) / arr.length)
-  }));
-};
+// Weekly duration function and getISOWeek helper removed as they're no longer needed
 
-function getISOWeek(date) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-}
-
-// 3. Activity Status (Donut)
+// 3. Activity Status (Donut) - FIXED
 const getActivityDonut = (sessions) => {
+  if (!Array.isArray(sessions) || sessions.length === 0) {
+    return [
+      { id: 'Active Days', value: 0 },
+      { id: 'Inactive Days', value: 30 }
+    ];
+  }
+  
   // Last 30 days
   const now = new Date();
   const last30 = new Set();
   for (let i = 0; i < 30; i++) {
     last30.add(new Date(now.getFullYear(), now.getMonth(), now.getDate() - i).toDateString());
   }
+  
   const activeDays = new Set();
   sessions.forEach(s => {
-    if (s.created_at) {
-      const d = new Date(s.created_at).toDateString();
-      if (last30.has(d)) activeDays.add(d);
+    if (s && s.created_at) {
+      try {
+        const d = new Date(s.created_at);
+        if (!isNaN(d.getTime())) {
+          const dateStr = d.toDateString();
+          if (last30.has(dateStr)) {
+            activeDays.add(dateStr);
+          }
+        }
+      } catch (e) {
+        console.warn('Invalid date in activity check:', s.created_at);
+      }
     }
   });
+  
+  const activeCount = activeDays.size;
+  const inactiveCount = 30 - activeCount;
+  
   return [
-    { id: 'Active Days', value: activeDays.size },
-    { id: 'Inactive Days', value: 30 - activeDays.size }
+    { id: 'Active Days', value: activeCount },
+    { id: 'Inactive Days', value: inactiveCount }
   ];
 };
 
-const UserProfilePage = ({ users, sessions, toggleBlock, darkMode }) => {
+const UserProfilePage = ({ users, sessions, toggleBlock, darkMode, fetchUserProfile, userProfiles }) => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const filter = searchParams.get('filter') || 'all';
+  
+  // State for API data
+  const [userSessions, setUserSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const user = users.find(u => u.id.toString() === userId);
 
-  const userSessions = Array.isArray(sessions)
-    ? sessions.filter(s => s && s.user_id && s.user_id.toString() === userId)
-    : [];
+  // Fetch user profile data using the centralized function
+  // Replace the useEffect in UserProfilePage.jsx
+
+useEffect(() => {
+  const loadUserProfile = async () => {
+    if (!userId) {
+      setError('No user ID provided');
+      setLoading(false);
+      return;
+    }
+    
+
+    
+    if (!fetchUserProfile) {
+      console.warn('fetchUserProfile function not provided');
+      // Fallback to prop sessions
+      const fallbackSessions = Array.isArray(sessions)
+        ? sessions.filter(s => s && s.user_id && s.user_id.toString() === userId)
+        : [];
+      setUserSessions(fallbackSessions);
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Loading user profile for userId:', userId);
+      
+      const sessionData = await fetchUserProfile(userId);
+      console.log('Received session data:', sessionData);
+      
+      if (Array.isArray(sessionData)) {
+        console.log('Setting userSessions with data:', sessionData);
+        setUserSessions(sessionData);
+      } else {
+        console.error('Expected array, got:', sessionData);
+        setUserSessions([]);
+      }
+    } catch (err) {
+      console.error('Error loading user profile:', err);
+      setError(err.message);
+      
+      // Fallback to prop sessions if API fails
+      const fallbackSessions = Array.isArray(sessions)
+        ? sessions.filter(s => s && s.user_id && s.user_id.toString() === userId)
+        : [];
+      console.log('Using fallback sessions:', fallbackSessions);
+      setUserSessions(fallbackSessions);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadUserProfile();
+}, [userId, fetchUserProfile, sessions]);
 
   const loginHistory =
     userSessions.length > 0
@@ -173,6 +241,31 @@ const UserProfilePage = ({ users, sessions, toggleBlock, darkMode }) => {
 
   // Choose theme based on dark mode
   const nivoTheme = darkMode ? darkNivoTheme : lightNivoTheme;
+
+  // Loading state
+  if (loading) {
+    return (
+      <Container sx={{ px: { xs: 1, sm: 3 } }}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
+
+  // Error state (but still show user data if available)
+  if (error && !user) {
+    return (
+      <Container sx={{ px: { xs: 1, sm: 3 } }}>
+        <Typography variant="h5" sx={{ fontSize: { xs: '1.1rem', sm: '1.5rem' } }} color="error">
+          Error: {error}
+        </Typography>
+        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(`/users?filter=${filter}`)}>
+          Back to Users
+        </Button>
+      </Container>
+    );
+  }
 
   if (!user) {
     return (
@@ -196,6 +289,15 @@ const UserProfilePage = ({ users, sessions, toggleBlock, darkMode }) => {
       <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(`/users?filter=${filter}`)} sx={{ mb: 2 }}>
         Back to Users List
       </Button>
+      
+      {error && (
+        <Box mb={2}>
+          <Typography variant="body2" color="warning.main">
+            Warning: {error}. Showing fallback data.
+          </Typography>
+        </Box>
+      )}
+
       <Paper sx={{ p: { xs: 2, sm: 4 } }}>
         {/* User Header */}
         <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }} mb={4}>
@@ -219,6 +321,18 @@ const UserProfilePage = ({ users, sessions, toggleBlock, darkMode }) => {
                 Rank: {user.rank}
               </Typography>
             )}
+            
+            {user.location && (
+              <Typography variant="body1" color="text.secondary">
+                Location: {user.location}
+              </Typography>
+            )}
+            
+            {user.ip && (
+              <Typography variant="body1" color="text.secondary">
+                IP Address: {user.ip}
+              </Typography>
+            )}
           </Box>
         </Box>
 
@@ -226,9 +340,9 @@ const UserProfilePage = ({ users, sessions, toggleBlock, darkMode }) => {
         <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.1rem' } }}>
           Usage Insights
         </Typography>
-        <Grid container spacing={2} mb={4}>
+        <Grid container spacing={2} mb={4} justifyContent="center">
           {/* Login Trends - Line chart */}
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <Paper variant="outlined" sx={{ p: 2, height: 320, borderRadius: 3 }}>
               <Typography variant="subtitle1" sx={{ mb: 1, color: 'primary.main', fontWeight: 700 }}>
                 Weekly User Logins
@@ -269,45 +383,8 @@ const UserProfilePage = ({ users, sessions, toggleBlock, darkMode }) => {
             </Paper>
           </Grid>
 
-          {/* Session Duration - Bar chart */}
-          <Grid item xs={12} sm={4}>
-            <Paper variant="outlined" sx={{ p: 2, height: 320, borderRadius: 3 }}>
-              <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
-                Session Duration (Avg per Week)
-              </Typography>
-              <Box sx={{ width: '100%', height: 260 }}>
-                <ResponsiveBar
-                  data={getWeeklyDuration(userSessions)}
-                  theme={nivoTheme}
-                  keys={['minutes']}
-                  indexBy="week"
-                  margin={{ top: 10, right: 10, bottom: 60, left: 60 }}
-                  padding={0.3}
-                  colors={[CHART_COLORS.purple]}
-                  valueScale={{ type: 'linear' }}
-                  indexScale={{ type: 'band', round: true }}
-                  enableLabel={false}
-                  enableGridY={true}
-                  axisBottom={{
-                    tickRotation: -35,
-                    legend: 'Week',
-                    legendOffset: 40,
-                    legendPosition: 'middle'
-                  }}
-                  axisLeft={{
-                    legend: 'Minutes',
-                    legendOffset: -45,
-                    legendPosition: 'middle'
-                  }}
-                  borderRadius={4}
-                  motionConfig="gentle"
-                />
-              </Box>
-            </Paper>
-          </Grid>
-
           {/* Activity Status - Donut */}
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <Paper variant="outlined" sx={{ p: 2, height: 320, borderRadius: 3 }}>
               <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
                 Activity Status (Last 30d)
@@ -352,25 +429,21 @@ const UserProfilePage = ({ users, sessions, toggleBlock, darkMode }) => {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Time</TableCell>
-                <TableCell>IP Address</TableCell>
-                <TableCell>Location</TableCell>
+                <TableCell align="center">Date</TableCell>
+                <TableCell align="center">Time</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loginHistory.length > 0 ? (
                 loginHistory.map(session => (
                   <TableRow key={session.id}>
-                    <TableCell>{new Date(session.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(session.created_at).toLocaleTimeString()}</TableCell>
-                    <TableCell>{session.ip_address || '-'}</TableCell>
-                    <TableCell>Mumbai, India</TableCell>
+                    <TableCell align="center">{new Date(session.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell align="center">{new Date(session.created_at).toLocaleTimeString()}</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} align="center">
+                  <TableCell colSpan={2} align="center">
                     <Typography variant="body2" color="text.secondary">
                       No login history available
                     </Typography>

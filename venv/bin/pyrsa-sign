@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/home/caio/Downloads/Authentication Server/venv/bin/python3" "$0" "$@"
-' '''
+#!/mnt/c/Users/jasle/OneDrive/Documents/MYWORK/wesee/authentication-server-1/venv/bin/python3
 import sys
 from rsa.cli import sign
 if __name__ == '__main__':

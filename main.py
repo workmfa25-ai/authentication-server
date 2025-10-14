@@ -10,9 +10,6 @@ import uuid
 from datetime import datetime, timedelta, timezone, date
 from typing import List
 
-
-
-
 from fastapi import FastAPI, HTTPException, Request, Depends, Path, status, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -35,14 +32,41 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
+# --- Background Task for Expired JWT Session Cleanup ---
+import asyncio
+from fastapi import BackgroundTasks
+
 app = FastAPI()
+
+# Background task to revoke expired JWT sessions
+async def cleanup_expired_jwt_sessions():
+    while True:
+        async with async_session() as session:
+            now = datetime.utcnow()
+            # Find all active sessions that are expired
+            result = await session.execute(
+                select(JwtSession)
+                .where(JwtSession.is_active == True)
+                .where(JwtSession.created_at + timedelta(minutes=15) < now)
+            )
+            expired_sessions = result.scalars().all()
+            for s in expired_sessions:
+                s.is_active = False
+            if expired_sessions:
+                await session.commit()
+        await asyncio.sleep(60)  # Run every 60 seconds
+
+# Start background task on app startup
+@app.on_event("startup")
+async def start_cleanup_task():
+    asyncio.create_task(cleanup_expired_jwt_sessions())
 #pagination logic 
 from typing import Generic, TypeVar, List
 from pydantic.generics import GenericModel
 
 T = TypeVar("T")
-IST = timezone(timedelta(hours=5, minutes=30))
 
+#jas
 origins = [
     "http://localhost:3000" , 
     "http://localhost:5173"
@@ -139,6 +163,7 @@ class UserSessionOut(BaseModel):
 # --- JWT SESSION TRACKING ---
 class JwtSessionOut(BaseModel):
     id: int
+    user_id : int
     username: str
     created_at: str
     is_active: bool
@@ -243,11 +268,12 @@ async def login(user: UserLogin, request: Request):
         db_user = result.scalar_one_or_none()
         if not db_user or not verify_password(user.password, db_user.password_hash):
             raise HTTPException(status_code=401, detail="Invalid credentials")
+        # --- JWT SESSION TRACKING ---
         jti = str(uuid.uuid4())
         jwt_session = JwtSession(
             user_id=db_user.id,
             jti=jti,
-            created_at=datetime.now(IST) ,
+            created_at=datetime.utcnow().replace(tzinfo=timezone.utc),
             is_active=True
         )
         session.add(jwt_session)
@@ -259,7 +285,7 @@ async def login(user: UserLogin, request: Request):
             .where(JwtSession.user_id == db_user.id)
             .where(JwtSession.is_active == True)
             .where(JwtSession.jti != jti)  # exclude the current session
-            .where(JwtSession.created_at + timedelta(minutes=15) > datetime.now(IST))  # still valid
+            .where(JwtSession.created_at + timedelta(minutes=15) > datetime.utcnow())  # still valid
         )
         other_active_sessions = result.scalars().all()
 
@@ -430,18 +456,6 @@ async def admin_logout(current_user: User = Depends(get_current_user), token: st
     return {"message": "Admin logged out successfully"}
  
 
- 
-# Add this helper function in main.py:
-def format_datetime_for_frontend(dt):
-    """Convert UTC datetime to IST and format as string"""
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    
-    ist = pytz.timezone('Asia/Kolkata')
-    ist_time = dt.astimezone(ist)
-    return ist_time.isoformat()
-
-
 @app.post("/admin/login")
 async def admin_login(admin: AdminLogin, request: Request):
     async with async_session() as session:
@@ -456,7 +470,7 @@ async def admin_login(admin: AdminLogin, request: Request):
         jwt_session = JwtSession(
             user_id=db_user.id,
             jti=jti,
-            created_at=datetime.now(IST),
+            created_at=datetime.utcnow(),
             is_active=True
         )
         session.add(jwt_session)
@@ -544,6 +558,7 @@ async def list_jwt_sessions(skip: int = Query(0, ge=0), limit: int = Query(10, g
         for jwt_session, user in result.all():
             sessions.append(JwtSessionOut(
                 id=jwt_session.id,
+                user_id=jwt_session.user_id,
                 username=user.username,
                 created_at=str(jwt_session.created_at),
                 is_active=jwt_session.is_active
@@ -636,7 +651,11 @@ async def user_stats():
         return {"active_users": active_users, "inactive_users": inactive_users}
 
 @app.get("/admin/user-profile/{user_id}")
-async def user_profile(user_id: int):
+async def user_profile(user_id: int, current_user: User = Depends(get_current_user)):
+    # Require admin access
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+        
     async with async_session() as session:
         # Get user info
         result = await session.execute(select(User).where(User.id == user_id))
@@ -656,6 +675,7 @@ async def user_profile(user_id: int):
         session_logs = [
             {
                 "id": s.id,
+                "user_id" : s.user_id,
                 "created_at": str(s.created_at),
                 "is_active": s.is_active,
             }
@@ -683,6 +703,7 @@ async def user_profile(user_id: int):
                 "is_admin": user.is_admin,
                 "is_blocked": getattr(user, "is_blocked", False)
             },
+            "sessions": session_logs,  # Add this for consistency
             "session_logs": session_logs,
             "last_login": str(last_login) if last_login else None,
             "last_logout": str(last_logout) if last_logout else None,
@@ -738,6 +759,7 @@ async def check_username(username: str = Query(...)):
         result = await session.execute(select(User).where(User.username == username))
         user = result.scalar_one_or_none()
         return {"exists": bool(user)}
+
 
 
 
