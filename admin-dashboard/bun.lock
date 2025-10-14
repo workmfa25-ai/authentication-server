@@ -2023,7 +2023,7 @@
 
     "postcss-minify-params": ["postcss-minify-params@5.1.4", "https://registry.npmmirror.com/postcss-minify-params/-/postcss-minify-params-5.1.4.tgz", { "dependencies": { "browserslist": "^4.21.4", "cssnano-utils": "^3.1.0", "postcss-value-parser": "^4.2.0" }, "peerDependencies": { "postcss": "^8.2.15" } }, "sha512-+mePA3MgdmVmv6g+30rn57USjOGSAyuxUmkfiWpzalZ8aiBkdPYjXWtHuwJGm1v5Ojy0Z0LaSYhHaLJQB0P8Jw=="],
 
-    "postcss-minify-selectors": ["postcss-minify-selectors@5.2.1", "https://registry.npmmirror.com/postcss-minify-selectors/-/postcss-minify-selectors-5.2.1.tgz", { "dependencies": { "postcss-selector-parser": "^6.0.5" }, "peerDependencies": { "postcss": "^8.2.15" } }, "sha512-nPJu7OjZJTsVUmPdm2TcaiohIwxP+v8ha9NehQ2ye9szv4orirRU3SDdtUmKH+10nzn0bAyOXZ0UEr7OpvLehg=="],
+    "postcss-minify-selectors": ["pstcss-minify-selectors@5.2.1", "https://registry.npmmirror.com/postcss-minify-selectors/-/postcss-minify-selectors-5.2.1.tgz", { "dependencies": { "postcss-selector-parser": "^6.0.5" }, "peerDependencies": { "postcss": "^8.2.15" } }, "sha512-nPJu7OjZJTsVUmPdm2TcaiohIwxP+v8ha9NehQ2ye9szv4orirRU3SDdtUmKH+10nzn0bAyOXZ0UEr7OpvLehg=="],
 
     "postcss-modules-extract-imports": ["postcss-modules-extract-imports@3.1.0", "https://registry.npmmirror.com/postcss-modules-extract-imports/-/postcss-modules-extract-imports-3.1.0.tgz", { "peerDependencies": { "postcss": "^8.1.0" } }, "sha512-k3kNe0aNFQDAZGbin48pL2VNidTF0w4/eASDsxlyspobzU3wZQLOGj7L9gfRe0Jo9/4uud09DsjFNH7winGv8Q=="],
 

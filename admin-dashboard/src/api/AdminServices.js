@@ -1,4 +1,3 @@
-
 const AdminServices = {
   login: async (API_URL, username, password) => {
   const res = await fetch(`${API_URL}/admin/login`, {
@@ -11,25 +10,18 @@ const AdminServices = {
 
   // ✅ Save token if login was successful
   if (res.ok && data.access_token) {
-    localStorage.setItem("adminToken", data.access_token);
+    sessionStorage.setItem("token", data.access_token);
+    sessionStorage.setItem("isLoggedIn", "true");
   } else {
     // Optional: clear any stale token if login failed
-    localStorage.removeItem("adminToken");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("isLoggedIn");
   }
 
   return data;
 },
 
-//jas
 
-//  fetchMonthlyLogins: async (API_URL, token, year, month, source = "grid") => {
-//     const url = `${API_URL}/admin/analytics/monthly-logins?year=${year}&month=${month}&source=${source}`;
-//     const res = await fetch(url, {
-//       headers: { "Authorization": `Bearer ${token}` }
-//     });
-//     if (!res.ok) throw new Error("Failed to fetch monthly logins");
-//     return await res.json();
-//   },
 
 
   fetchUsers: async (API_URL, token) => {
@@ -75,22 +67,7 @@ const AdminServices = {
     return await res.json();
   },
 
-  // fetchrecentSessions: async (API_URL, token, skip = 0, limit = 10) => {
-  //   const res = await fetch(`${API_URL}/admin/sessions`, {
-  //     headers: { "Authorization": `Bearer ${token}` }
-  //   });
-  //   if (!res.ok) throw new Error("Failed to fetch sessions");
-  //   return await res.json();
-  // },
-
-  // fetchSessionsPaginated: async (API_URL, token, skip = 0, limit = 50) => {
-  //   const res = await fetch(`${API_URL}/admin/sessions?skip=${skip}&limit=${limit}`, {
-  //     headers: { "Authorization": `Bearer ${token}` }
-  //   });
-  //   if (!res.ok) throw new Error("Failed to fetch sessions");
-  //   return await res.json();
-  // },
-  //jas
+  
 
 
   toggleBlock: async (API_URL, token, username, block) => {
@@ -138,7 +115,40 @@ const AdminServices = {
         "Authorization": `Bearer ${token}`
       },
     });
+  },
+
+  // Update the fetchUserProfile method in AdminServices.js
+
+fetchUserProfile: async (API_URL, token, userId) => {
+  try {
+    console.log('Fetching user profile for userId:', userId);
+    
+    // Make sure we have a fresh token from sessionStorage
+    const freshToken = sessionStorage.getItem('token') || token;
+    
+    const res = await fetch(`${API_URL}/admin/user-profile/${userId}`, {
+      headers: { 
+        "Authorization": `Bearer ${freshToken}`,
+        "Content-Type": "application/json"
+      }
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('Error response from user profile endpoint:', errorData);
+      throw new Error(errorData.detail || "Failed to fetch user profile");
+    }
+    
+    const data = await res.json();
+    console.log('User profile response:', data);
+    
+    // Return the sessions array (now available for consistency)
+    return data.sessions || [];
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    throw error;
   }
+},
 };
 
 export default AdminServices;

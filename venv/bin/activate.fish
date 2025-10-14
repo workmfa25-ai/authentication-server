@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV '/home/caio/Downloads/Authentication Server/venv'
+set -gx VIRTUAL_ENV /mnt/c/Users/jasle/OneDrive/Documents/MYWORK/wesee/authentication-server-1/venv
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

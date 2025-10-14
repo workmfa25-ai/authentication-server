@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Box, useMediaQuery, CssBaseline } from "@mui/material";
@@ -94,6 +92,8 @@ function App() {
     jwtTotal,
     jwtLoading,
     fetchJwtSessionsPage,
+    fetchUserProfile,
+    userProfiles,
   } = useAdmin(API_URL);
 
   // Logout
@@ -340,9 +340,11 @@ function App() {
                         element={
                           <UserProfilePage 
                             users={users} 
-                            sessions={jwtSessions} 
+                            sessions={jwtSessions}
                             toggleBlock={toggleBlock} 
                             darkMode={darkMode}
+                            fetchUserProfile={fetchUserProfile}
+                            userProfiles={userProfiles}
                             replace 
                           />
                         }
